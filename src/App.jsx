@@ -9,6 +9,9 @@ import {
 import { TextureLoader, Vector3 } from "three";
 
 // --- DONNÉES (Inchangées) ---
+const isIOS =
+  typeof window !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 const DATA = [
   {
     id: 1,
@@ -588,11 +591,8 @@ function ProjectOverlay({ project, onClose }) {
           background: white; 
           z-index: 20000; 
           display: grid; 
-          grid-template-columns: 35fr 65fr; 
-          transform: translateY(100%); 
-          transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
+          grid-template-columns: 35fr 65fr;
         }
-        .fullscreen-overlay.active { transform: translateY(0); }
         
         .info-col { 
           display: flex; flex-direction: column; 
@@ -601,7 +601,7 @@ function ProjectOverlay({ project, onClose }) {
           overflow-y: auto; 
           background: white;
           color: black;
-          /* Assure que le texte est visible sur iOS */
+          /* Force le texte noir sur iOS pour éviter l'héritage transparent */
           -webkit-text-fill-color: black;
         }
         .image-col { 
@@ -611,7 +611,6 @@ function ProjectOverlay({ project, onClose }) {
           width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
         }
 
-        /* Classes pour gérer l'affichage sans JS */
         .desktop-view { display: block; }
         .mobile-view { display: none; }
         
@@ -632,41 +631,36 @@ function ProjectOverlay({ project, onClose }) {
         .close-btn { position: fixed; top: 0; right: 0; width: 100px; height: 100px; background: black; color: white; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase; z-index: 20002; transition: background 0.3s; }
         
         /* --- MOBILE (ÉCRANS < 768px) --- */
-        /* --- CORRECTION MOBILE --- */
         @media (max-width: 768px) {
-          .fullscreen-overlay {
-            /* On force l'overlay à prendre tout l'écran de manière brute */
-            position: fixed !important;
-            top: 0 !important; left: 0 !important; 
-            width: 100vw !important; 
-            height: 100vh !important;
-            
-            /* On active le scroll vertical */
-            overflow-y: scroll !important;
-            -webkit-overflow-scrolling: touch; /* Fluidité iPhone */
-            display: block !important;
-            
-            /* On s'assure que le fond est bien blanc et par-dessus tout */
-            background: white !important;
-            z-index: 999999 !important;
+           .fullscreen-overlay {
+    transform: none !important; /* sécurité */
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+             .fullscreen-overlay.active {
+    opacity: 1;
+  }
+
+          /* État actif sur Mobile */
+          .fullscreen-overlay.active {
+            opacity: 1;
+            pointer-events: all;
           }
 
           .info-col {
-            /* On force le texte à s'afficher normalement */
             display: block !important;
             height: auto !important;
             width: 100% !important;
             overflow: visible !important;
-            
-            /* Important : Espacement pour ne pas être caché par le header */
             padding: 100px 20px 40px 20px !important; 
-            
-            /* On force la couleur noire pour être sûr que le texte est visible */
             color: black !important;
+            /* Force le repeint du texte */
+            transform: translateZ(0); 
           }
 
           .image-col {
-            /* On affiche l'image en dessous du texte */
             display: block !important;
             height: auto !important;
             width: 100% !important;
@@ -678,17 +672,14 @@ function ProjectOverlay({ project, onClose }) {
              width: 100% !important;
              height: auto !important;
              display: block !important;
-             /* On limite la hauteur pour ne pas avoir à scroller 3km */
              max-height: 50vh !important; 
              object-fit: cover !important;
           }
 
-          /* Ajustement des titres et boutons */
           .header-box { padding: 0 !important; border: none !important; margin-bottom: 20px !important; }
           .project-title { font-size: 3rem !important; line-height: 1 !important; color: black !important; }
           .desc-box { padding: 0 !important; margin-bottom: 30px !important; color: black !important; }
           
-          /* Le bouton fermer bien visible */
           .close-btn { 
             position: fixed !important;
             top: 10px !important; 
@@ -698,15 +689,30 @@ function ProjectOverlay({ project, onClose }) {
             font-size: 0.7rem !important;
             background: black !important;
             color: white !important;
-            z-index: 1000000 !important; /* Toujours au dessus */
+            z-index: 1000000 !important;
           }
           
-          /* On cache les trucs inutiles ou qui buggent */
-          .desktop-view, .mobile-view { display: contents !important; }
+          /* Eviter display: contents sur iOS qui est buggé */
+          .desktop-view { display: none !important; }
+          .mobile-view { display: block !important; }
         }
       `}</style>
 
-      <div className={`fullscreen-overlay ${active ? "active" : ""}`}>
+      {/* Le reste du HTML ne change pas */}
+      <div
+        className={`fullscreen-overlay ${active ? "active" : ""}`}
+        style={
+          isIOS
+            ? {
+                opacity: active ? 1 : 0,
+                pointerEvents: active ? "auto" : "none",
+              }
+            : {
+                transform: active ? "translateY(0)" : "translateY(100%)",
+                transition: "transform 0.6s cubic-bezier(0.76, 0, 0.24, 1)",
+              }
+        }
+      >
         <button className="close-btn" onClick={handleClose}>
           Close
         </button>
@@ -753,7 +759,6 @@ function ProjectOverlay({ project, onClose }) {
             </div>
           )}
 
-          {/* IMAGE MOBILE : Gérée par la classe .mobile-view */}
           <div className="image-col mobile-view">
             <img
               src={project.url}
@@ -763,7 +768,6 @@ function ProjectOverlay({ project, onClose }) {
           </div>
         </div>
 
-        {/* IMAGE DESKTOP : Gérée par la classe .desktop-view */}
         <div className="image-col desktop-view">
           <img
             src={project.url}
@@ -1365,6 +1369,14 @@ export default function App() {
           width: "100%",
           height: "100%",
           zIndex: 0,
+          // Si on est sur mobile ET qu'un projet est ouvert = on cache complètement la 3D
+          // visibility: "hidden" permet de garder la scène chargée mais de couper le rendu visuel
+          // Remplace la ligne visibility par :
+          visibility:
+            isMobile && (selectedProject || isMenuOpen) ? "hidden" : "visible",
+
+          // Option alternative si visibility ne suffit pas (plus brutal) :
+          // display: (isMobile && (selectedProject || isMenuOpen)) ? "none" : "block"
         }}
       >
         {!isMobile && isLocked && (
