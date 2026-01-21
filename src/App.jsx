@@ -566,7 +566,11 @@ function ProjectOverlay({ project, onClose }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    requestAnimationFrame(() => setActive(true));
+    // Petit délai pour assurer que le DOM est prêt sur iOS
+    const timer = setTimeout(() => {
+      requestAnimationFrame(() => setActive(true));
+    }, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClose = () => {
@@ -577,12 +581,14 @@ function ProjectOverlay({ project, onClose }) {
   return (
     <>
       <style>{`
-        /* --- VERSIONS DESKTOP (Inchangé) --- */
+        /* --- BASE (DESKTOP) --- */
         .fullscreen-overlay { 
-          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+          position: fixed; 
+          top: 0; left: 0; width: 100vw; height: 100vh; 
           background: white; 
           z-index: 20000; 
-          display: grid; grid-template-columns: 35fr 65fr; 
+          display: grid; 
+          grid-template-columns: 35fr 65fr; 
           transform: translateY(100%); 
           transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
         }
@@ -594,100 +600,75 @@ function ProjectOverlay({ project, onClose }) {
           height: 100vh; 
           overflow-y: auto; 
           background: white;
-          color: black; 
+          color: black;
+          /* Assure que le texte est visible sur iOS */
+          -webkit-text-fill-color: black;
         }
-        .header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
-        .project-title { 
-          font-family: 'Inter', sans-serif; font-weight: 900; 
-          font-size: clamp(3rem, 5vw, 6rem); line-height: 0.9; 
-          letter-spacing: -2px; margin: 0; text-transform: uppercase; color: black;
-        }
-        .desc-box { 
-          flex: 1; padding: 40px; 
-          font-family: 'Inter', sans-serif; font-size: 1.1rem; 
-          line-height: 1.6; color: #333; 
-          display: flex; align-items: center; 
-        }
-        .meta-grid { 
-          display: grid; grid-template-columns: 1fr 1fr; 
-          border-top: 1px solid #E0E0E0; 
-        }
-        .meta-item { 
-          padding: 20px; 
-          border-right: 1px solid #E0E0E0; 
-          border-bottom: 1px solid #E0E0E0; 
-        }
-        .meta-item:nth-child(2n) { border-right: none; }
-        .meta-label { 
-          display: block; font-family: 'Inter', sans-serif; 
-          font-size: 0.75rem; font-weight: 700; 
-          text-transform: uppercase; color: #999; margin-bottom: 5px; 
-        }
-        .meta-value { 
-          font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black;
-        }
-        .action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
-        .figma-btn {
-          display: flex; justify-content: space-between; align-items: center;
-          width: 100%; padding: 30px 40px;
-          background: white; color: black;
-          border: none; cursor: pointer; text-decoration: none;
-          font-family: 'Inter', sans-serif; font-weight: 900;
-          font-size: 1.5rem; text-transform: uppercase; letter-spacing: -1px;
-          transition: background 0.3s, color 0.3s;
-        }
-        .figma-btn:hover { background: #111; color: white; }
-        .arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
-        .figma-btn:hover .arrow-icon { transform: rotate(0deg); }
         .image-col { 
           position: relative; height: 100vh; background: #F0F0F0; overflow-y: auto; 
         }
         .project-image { 
           width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
         }
-        .close-btn { 
-          position: fixed; top: 0; right: 0; width: 100px; height: 100px; 
-          background: black; color: white; border: none; cursor: pointer; 
-          font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; 
-          text-transform: uppercase; z-index: 20002; transition: background 0.3s; 
-        }
-        .close-btn:hover { background: #333; }
 
-        /* --- CORRECTION MOBILE RADICALE --- */
+        /* Classes pour gérer l'affichage sans JS */
+        .desktop-view { display: block; }
+        .mobile-view { display: none; }
+        
+        /* Styles standards... */
+        .header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
+        .project-title { font-family: 'Inter', sans-serif; font-weight: 900; font-size: clamp(3rem, 5vw, 6rem); line-height: 0.9; letter-spacing: -2px; margin: 0; text-transform: uppercase; color: black; }
+        .desc-box { flex: 1; padding: 40px; font-family: 'Inter', sans-serif; font-size: 1.1rem; line-height: 1.6; color: #333; display: flex; align-items: center; }
+        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #E0E0E0; }
+        .meta-item { padding: 20px; border-right: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; }
+        .meta-item:nth-child(2n) { border-right: none; }
+        .meta-label { display: block; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #999; margin-bottom: 5px; }
+        .meta-value { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black; }
+        .action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
+        .figma-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 30px 40px; background: white; color: black; border: none; cursor: pointer; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; letter-spacing: -1px; transition: background 0.3s, color 0.3s; }
+        .figma-btn:hover { background: #111; color: white; }
+        .arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
+        .figma-btn:hover .arrow-icon { transform: rotate(0deg); }
+        .close-btn { position: fixed; top: 0; right: 0; width: 100px; height: 100px; background: black; color: white; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase; z-index: 20002; transition: background 0.3s; }
+        
+        /* --- MOBILE (ÉCRANS < 768px) --- */
         @media (max-width: 768px) {
-          .fullscreen-overlay { 
-            /* On casse le Grid et on passe en bloc simple avec scroll global */
-            display: block !important; 
-            overflow-y: scroll !important; /* Le scroll se fait sur le parent */
-            -webkit-overflow-scrolling: touch; /* Fluidité iOS */
-          }
-          
-          .info-col { 
+          .fullscreen-overlay {
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: auto; height: auto;
             display: block !important;
-            height: auto !important; 
-            width: 100% !important;
-            overflow: visible !important; 
-            border-right: none !important;
+            overflow-y: scroll !important;
+            -webkit-overflow-scrolling: touch; 
           }
 
-          .image-col { 
-            display: block !important;
-            height: auto !important; 
+          .info-col {
             width: 100% !important;
-            position: relative !important;
+            height: auto !important;
             overflow: visible !important;
+            display: block !important;
+            flex: none !important;
+          }
+
+          /* Inversion de l'affichage mobile/desktop via CSS pur */
+          .desktop-view { display: none !important; }
+          .mobile-view { display: block !important; }
+
+          .image-col {
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
           }
           
           .project-image {
              height: auto !important;
-             max-height: 80vh; /* Limite la hauteur de l'image sur mobile */
+             max-height: 60vh;
           }
 
-          /* Ajustements espacements mobile */
-          .header-box { padding: 80px 20px 30px 20px !important; }
-          .project-title { font-size: 3rem !important; word-break: break-word; }
+          .header-box { padding: 90px 20px 30px 20px !important; }
+          .project-title { font-size: 3rem !important; word-wrap: break-word; }
           .desc-box { padding: 30px 20px !important; display: block !important; }
-          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; background: black !important; color: white !important; }
+          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; }
         }
       `}</style>
 
@@ -696,7 +677,6 @@ function ProjectOverlay({ project, onClose }) {
           Close
         </button>
 
-        {/* Note : L'ordre HTML est important pour le mobile (Texte puis Image) */}
         <div className="info-col">
           <div className="header-box">
             <h1 className="project-title">{project.title}</h1>
@@ -738,9 +718,19 @@ function ProjectOverlay({ project, onClose }) {
               </a>
             </div>
           )}
+
+          {/* IMAGE MOBILE : Gérée par la classe .mobile-view */}
+          <div className="image-col mobile-view">
+            <img
+              src={project.url}
+              alt={project.title}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
+          </div>
         </div>
 
-        <div className="image-col">
+        {/* IMAGE DESKTOP : Gérée par la classe .desktop-view */}
+        <div className="image-col desktop-view">
           <img
             src={project.url}
             alt={project.title}
@@ -1032,22 +1022,31 @@ function MurPresentationGauche() {
 function BoutonProjets({ position, onActivate }) {
   const [hovered, setHover] = useState(false);
 
+  // Fonction universelle qui marche au clic souris ET au toucher tactile
+  const handleInteract = (e) => {
+    e.stopPropagation(); // Empêche de cliquer à travers
+    onActivate();
+  };
+
   return (
     <group position={position} rotation={[0, Math.PI, 0]}>
-      {/* ZONE D'INTERACTION (Invisible mais large pour faciliter le clic) */}
+      {/* ZONE D'INTERACTION INVISIBLE MAIS LARGE */}
       <mesh
+        // SUR MOBILE : OnPointerDown déclenche tout de suite (pas de bug de tremblement)
+        onPointerDown={handleInteract}
+        // SUR PC : On garde onClick pour le confort (éviter clic accidentel en tournant la vue)
+        onClick={(e) => {
+          // Petite astuce : on vérifie si c'est pas du tactile pour éviter le double déclenchement
+          if (e.pointerType === "mouse") handleInteract(e);
+        }}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
-        onClick={(e) => {
-          e.stopPropagation();
-          onActivate();
-        }}
       >
         <planeGeometry args={[5, 2]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* TITRE PRINCIPAL : On joue sur l'épaisseur et l'espacement */}
+      {/* TEXTE VISUEL */}
       <Text
         position={[0, 0, 0]}
         fontSize={0.5}
@@ -1059,35 +1058,23 @@ function BoutonProjets({ position, onActivate }) {
         MES PROJETS
       </Text>
 
-      {/* LIGNE DE SOULIGNEMENT ANIMÉE (Scale X au hover) */}
+      {/* DÉCORATION (SOULIGNEMENT) */}
       <mesh position={[0, -0.4, 0.01]} scale={[hovered ? 1 : 0.2, 1, 1]}>
         <planeGeometry args={[3, 0.02]} />
         <meshBasicMaterial
-          color="white"
+          color="#862222"
           transparent
           opacity={hovered ? 1 : 0.5}
         />
       </mesh>
 
-      {/* PETIT TEXTE D'INDICATION (Apparaît au hover) */}
-      <Text
-        position={[0, -0.7, 0]}
-        fontSize={0.15}
-        color="white"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
-        fillOpacity={hovered ? 1 : 0}
-        letterSpacing={0.1}
-      >
-        CLIQUEZ POUR EXPLORER ↗
-      </Text>
-
-      {/* HALO LUMINEUX TRÈS SUBTIL DERRIÈRE LE TEXTE */}
-      <mesh position={[0, 0, -0.05]}>
-        <planeGeometry args={[6, 3]} />
+      {/* HALO ROUGE (Feedback visuel) */}
+      <mesh position={[0, 0, -0.1]}>
+        <planeGeometry args={[5.5, 2.5]} />
         <meshBasicMaterial
-          color="white"
+          color="#862222"
           transparent
-          opacity={hovered ? 0.05 : 0}
+          opacity={hovered ? 0.2 : 0}
         />
       </mesh>
     </group>
