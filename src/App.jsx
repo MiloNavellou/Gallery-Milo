@@ -579,25 +579,26 @@ function ProjectOverlay({ project, onClose }) {
       <style>{`
         .fullscreen-overlay { 
           position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-          background: white; z-index: 100; 
+          background: white; 
+          z-index: 20000; /* Z-INDEX AUGMENTÉ POUR PASSER AU DESSUS DE TOUT */
           display: grid; grid-template-columns: 35fr 65fr; 
           transform: translateY(100%); 
           transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
         }
         .fullscreen-overlay.active { transform: translateY(0); }
         
-        /* COLONNE GAUCHE (INFOS) */
         .info-col { 
           display: flex; flex-direction: column; 
           border-right: 1px solid #E0E0E0; 
           height: 100vh; 
-          overflow-y: auto; /* Scroll si le texte est long */
+          overflow-y: auto; 
+          background: white; /* Sécurité fond blanc */
         }
         .header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
         .project-title { 
           font-family: 'Inter', sans-serif; font-weight: 900; 
           font-size: clamp(3rem, 5vw, 6rem); line-height: 0.9; 
-          letter-spacing: -2px; margin: 0; text-transform: uppercase; 
+          letter-spacing: -2px; margin: 0; text-transform: uppercase; color: black;
         }
         .desc-box { 
           flex: 1; padding: 40px; 
@@ -621,62 +622,50 @@ function ProjectOverlay({ project, onClose }) {
           text-transform: uppercase; color: #999; margin-bottom: 5px; 
         }
         .meta-value { 
-          font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; 
+          font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black;
         }
 
-        /* NOUVEAU BOUTON FIGMA */
-        .action-box {
-          padding: 0;
-          border-bottom: 1px solid #E0E0E0; /* Pour fermer la grille proprement */
-        }
+        .action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
         .figma-btn {
           display: flex; justify-content: space-between; align-items: center;
           width: 100%; padding: 30px 40px;
           background: white; color: black;
-          border: none; cursor: pointer;
-          text-decoration: none;
+          border: none; cursor: pointer; text-decoration: none;
           font-family: 'Inter', sans-serif; font-weight: 900;
           font-size: 1.5rem; text-transform: uppercase; letter-spacing: -1px;
           transition: background 0.3s, color 0.3s;
         }
-        .figma-btn:hover {
-          background: #111; color: white;
-        }
+        .figma-btn:hover { background: #111; color: white; }
         .arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
         .figma-btn:hover .arrow-icon { transform: rotate(0deg); }
 
-        /* COLONNE DROITE (IMAGE) - MODIFIÉE POUR LE SCROLL */
         .image-col { 
-          position: relative; 
-          height: 100vh; 
-          background: #F0F0F0; 
-          overflow-y: auto; /* AJOUT : Permet le scroll vertical */
+          position: relative; height: 100vh; background: #F0F0F0; overflow-y: auto; 
         }
         .project-image { 
-          width: 100%; 
-          height: auto; /* AJOUT : Hauteur automatique */
-          min-height: 100%; /* S'assure qu'elle remplit au moins l'écran */
-          object-fit: cover; 
-          display: block; 
-          transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+          width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
         }
-        /* L'effet hover de zoom reste, mais attention sur les très longues images */
-        .image-col:hover .project-image { transform: scale(1.02); }
 
-        /* BOUTON FERMER */
+        /* CLOSE BTN EN FIXED POUR MOBILE */
         .close-btn { 
-          position: absolute; top: 0; right: 0; width: 100px; height: 100px; 
+          position: fixed; top: 0; right: 0; width: 100px; height: 100px; 
           background: black; color: white; border: none; cursor: pointer; 
           font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; 
-          text-transform: uppercase; z-index: 10; transition: background 0.3s; 
+          text-transform: uppercase; z-index: 20002; transition: background 0.3s; 
         }
         .close-btn:hover { background: #333; }
 
         @media (max-width: 768px) {
-          .fullscreen-overlay { grid-template-columns: 1fr; grid-template-rows: auto auto; display: block; overflow-y: auto; }
+          .fullscreen-overlay { 
+            grid-template-columns: 1fr; 
+            grid-template-rows: auto auto; 
+            display: block; /* Important pour le scroll mobile */
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+          }
           .image-col { height: auto; width: 100%; position: relative; }
           .info-col { height: auto; overflow: visible; }
-          .header-box { padding: 30px 20px; }
+          .header-box { padding: 30px 20px; padding-top: 80px; /* Espace pour le bouton close */ }
           .project-title { font-size: 3.5rem; }
           .desc-box { padding: 30px 20px; }
           .close-btn { width: 60px; height: 60px; font-size: 0.8rem; }
@@ -716,7 +705,6 @@ function ProjectOverlay({ project, onClose }) {
             </div>
           </div>
 
-          {/* NOUVEAU BOUTON : S'affiche seulement si project.link existe */}
           {project.link && (
             <div className="action-box">
               <a
@@ -1244,13 +1232,11 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [lastCloseTime, setLastCloseTime] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hasMobilePermission, setHasMobilePermission] = useState(false); // Ici le menu est fermé par défaut
-  const closeProjectMenu = () => {
-    setLastCloseTime(Date.now()); // On marque le temps d'arrêt ICI
-    setIsMenuOpen(false);
+  const [hasMobilePermission, setHasMobilePermission] = useState(false);
 
-    // On attend un tout petit peu (100ms) avant de reverrouiller
-    // pour laisser au navigateur le temps de digérer l'état
+  const closeProjectMenu = () => {
+    setLastCloseTime(Date.now());
+    setIsMenuOpen(false);
     setTimeout(() => {
       setIsLocked(true);
     }, 100);
@@ -1284,7 +1270,6 @@ export default function App() {
         background: "black",
       }}
     >
-      {/* 1. Interface Mobile (Permission + Boutons) */}
       <MobileInterface
         hasPermission={hasMobilePermission}
         onPermissionGranted={() => {
@@ -1292,27 +1277,39 @@ export default function App() {
           setIsLocked(true);
         }}
       />
+
       <IntroOverlay
         isVisible={!isLocked && !selectedProject && !isMenuOpen}
         onEnter={() => setIsLocked(true)}
       />
 
+      {/* OVERLAY LISTE PROJETS */}
       {isMenuOpen && (
         <ProjectListOverlay
           projects={DATA}
           onClose={closeProjectMenu}
           onSelect={(project) => {
-            // 1. Fermer le menu
             setIsMenuOpen(false);
-            // 2. Définir le projet actuel
             setSelectedProject(project);
-            // 3. Désactiver le pointer lock pour interagir avec l'overlay du projet
             document.exitPointerLock();
             setIsLocked(false);
           }}
         />
       )}
 
+      {/* OVERLAY DÉTAIL PROJET (Déplacé ICI, en dehors de la div absolute du canvas) */}
+      {selectedProject && (
+        <ProjectOverlay
+          project={selectedProject}
+          onClose={() => {
+            setLastCloseTime(Date.now());
+            setSelectedProject(null);
+            setIsLocked(true);
+          }}
+        />
+      )}
+
+      {/* CONTENEUR 3D */}
       <div
         style={{
           position: "absolute",
@@ -1343,16 +1340,6 @@ export default function App() {
             }}
           />
         )}
-        {selectedProject && (
-          <ProjectOverlay
-            project={selectedProject}
-            onClose={() => {
-              setLastCloseTime(Date.now());
-              setSelectedProject(null);
-              setIsLocked(true);
-            }}
-          />
-        )}
 
         <Canvas shadows camera={{ position: [0, 1.6, 4], fov: 75 }}>
           <RegardInitial />
@@ -1368,7 +1355,6 @@ export default function App() {
           />
           <Suspense fallback={<Loading />}>
             {!isMobile && isLocked && <PointerLockControls />}
-            {/* Contrôles Mobile Gyroscope */}
             {isMobile && hasMobilePermission && <DeviceOrientationControls />}
             <MoveController
               isLocked={isLocked}
@@ -1378,12 +1364,7 @@ export default function App() {
               position={[0, 1.6, 9.9]}
               onActivate={() => {
                 const now = Date.now();
-                // Si on a fermé un overlay il y a moins de 2 secondes, on ignore le clic
-                if (now - lastCloseTime < 2000) {
-                  console.log("Sécurité active : clic ignoré");
-                  return;
-                }
-
+                if (now - lastCloseTime < 2000) return;
                 document.exitPointerLock();
                 setIsMenuOpen(true);
                 setIsLocked(false);
