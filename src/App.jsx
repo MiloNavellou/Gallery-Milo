@@ -632,43 +632,77 @@ function ProjectOverlay({ project, onClose }) {
         .close-btn { position: fixed; top: 0; right: 0; width: 100px; height: 100px; background: black; color: white; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase; z-index: 20002; transition: background 0.3s; }
         
         /* --- MOBILE (ÉCRANS < 768px) --- */
+        /* --- CORRECTION MOBILE --- */
         @media (max-width: 768px) {
           .fullscreen-overlay {
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: auto; height: auto;
-            display: block !important;
+            /* On force l'overlay à prendre tout l'écran de manière brute */
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; 
+            width: 100vw !important; 
+            height: 100vh !important;
+            
+            /* On active le scroll vertical */
             overflow-y: scroll !important;
-            -webkit-overflow-scrolling: touch; 
+            -webkit-overflow-scrolling: touch; /* Fluidité iPhone */
+            display: block !important;
+            
+            /* On s'assure que le fond est bien blanc et par-dessus tout */
+            background: white !important;
+            z-index: 999999 !important;
           }
 
           .info-col {
-            width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
+            /* On force le texte à s'afficher normalement */
             display: block !important;
-            flex: none !important;
+            height: auto !important;
+            width: 100% !important;
+            overflow: visible !important;
+            
+            /* Important : Espacement pour ne pas être caché par le header */
+            padding: 100px 20px 40px 20px !important; 
+            
+            /* On force la couleur noire pour être sûr que le texte est visible */
+            color: black !important;
           }
 
-          /* Inversion de l'affichage mobile/desktop via CSS pur */
-          .desktop-view { display: none !important; }
-          .mobile-view { display: block !important; }
-
           .image-col {
-            width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
+            /* On affiche l'image en dessous du texte */
             display: block !important;
+            height: auto !important;
+            width: 100% !important;
+            position: relative !important;
+            overflow: visible !important;
           }
           
           .project-image {
+             width: 100% !important;
              height: auto !important;
-             max-height: 60vh;
+             display: block !important;
+             /* On limite la hauteur pour ne pas avoir à scroller 3km */
+             max-height: 50vh !important; 
+             object-fit: cover !important;
           }
 
-          .header-box { padding: 90px 20px 30px 20px !important; }
-          .project-title { font-size: 3rem !important; word-wrap: break-word; }
-          .desc-box { padding: 30px 20px !important; display: block !important; }
-          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; }
+          /* Ajustement des titres et boutons */
+          .header-box { padding: 0 !important; border: none !important; margin-bottom: 20px !important; }
+          .project-title { font-size: 3rem !important; line-height: 1 !important; color: black !important; }
+          .desc-box { padding: 0 !important; margin-bottom: 30px !important; color: black !important; }
+          
+          /* Le bouton fermer bien visible */
+          .close-btn { 
+            position: fixed !important;
+            top: 10px !important; 
+            right: 10px !important; 
+            width: 50px !important; 
+            height: 50px !important; 
+            font-size: 0.7rem !important;
+            background: black !important;
+            color: white !important;
+            z-index: 1000000 !important; /* Toujours au dessus */
+          }
+          
+          /* On cache les trucs inutiles ou qui buggent */
+          .desktop-view, .mobile-view { display: contents !important; }
         }
       `}</style>
 
@@ -1115,7 +1149,13 @@ function MobileInterface({ onPermissionGranted, hasPermission }) {
           padding: "20px",
         }}
       >
-        <h2 style={{ textTransform: "uppercase", marginBottom: "20px" }}>
+        <h2
+          style={{
+            textTransform: "uppercase",
+            marginBottom: "20px",
+            fontFamily: "'Inter', sans-serif",
+          }}
+        >
           Expérience Immersive
         </h2>
         <p style={{ marginBottom: "40px", maxWidth: "300px", opacity: 0.7 }}>
