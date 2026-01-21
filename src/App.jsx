@@ -577,10 +577,11 @@ function ProjectOverlay({ project, onClose }) {
   return (
     <>
       <style>{`
+        /* --- VERSIONS DESKTOP (Inchangé) --- */
         .fullscreen-overlay { 
           position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
           background: white; 
-          z-index: 20000; /* Z-INDEX AUGMENTÉ POUR PASSER AU DESSUS DE TOUT */
+          z-index: 20000; 
           display: grid; grid-template-columns: 35fr 65fr; 
           transform: translateY(100%); 
           transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
@@ -592,7 +593,8 @@ function ProjectOverlay({ project, onClose }) {
           border-right: 1px solid #E0E0E0; 
           height: 100vh; 
           overflow-y: auto; 
-          background: white; /* Sécurité fond blanc */
+          background: white;
+          color: black; 
         }
         .header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
         .project-title { 
@@ -624,7 +626,6 @@ function ProjectOverlay({ project, onClose }) {
         .meta-value { 
           font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black;
         }
-
         .action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
         .figma-btn {
           display: flex; justify-content: space-between; align-items: center;
@@ -638,15 +639,12 @@ function ProjectOverlay({ project, onClose }) {
         .figma-btn:hover { background: #111; color: white; }
         .arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
         .figma-btn:hover .arrow-icon { transform: rotate(0deg); }
-
         .image-col { 
           position: relative; height: 100vh; background: #F0F0F0; overflow-y: auto; 
         }
         .project-image { 
           width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
         }
-
-        /* CLOSE BTN EN FIXED POUR MOBILE */
         .close-btn { 
           position: fixed; top: 0; right: 0; width: 100px; height: 100px; 
           background: black; color: white; border: none; cursor: pointer; 
@@ -655,20 +653,41 @@ function ProjectOverlay({ project, onClose }) {
         }
         .close-btn:hover { background: #333; }
 
+        /* --- CORRECTION MOBILE RADICALE --- */
         @media (max-width: 768px) {
           .fullscreen-overlay { 
-            grid-template-columns: 1fr; 
-            grid-template-rows: auto auto; 
-            display: block; /* Important pour le scroll mobile */
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+            /* On casse le Grid et on passe en bloc simple avec scroll global */
+            display: block !important; 
+            overflow-y: scroll !important; /* Le scroll se fait sur le parent */
+            -webkit-overflow-scrolling: touch; /* Fluidité iOS */
           }
-          .image-col { height: auto; width: 100%; position: relative; }
-          .info-col { height: auto; overflow: visible; }
-          .header-box { padding: 30px 20px; padding-top: 80px; /* Espace pour le bouton close */ }
-          .project-title { font-size: 3.5rem; }
-          .desc-box { padding: 30px 20px; }
-          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; }
+          
+          .info-col { 
+            display: block !important;
+            height: auto !important; 
+            width: 100% !important;
+            overflow: visible !important; 
+            border-right: none !important;
+          }
+
+          .image-col { 
+            display: block !important;
+            height: auto !important; 
+            width: 100% !important;
+            position: relative !important;
+            overflow: visible !important;
+          }
+          
+          .project-image {
+             height: auto !important;
+             max-height: 80vh; /* Limite la hauteur de l'image sur mobile */
+          }
+
+          /* Ajustements espacements mobile */
+          .header-box { padding: 80px 20px 30px 20px !important; }
+          .project-title { font-size: 3rem !important; word-break: break-word; }
+          .desc-box { padding: 30px 20px !important; display: block !important; }
+          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; background: black !important; color: white !important; }
         }
       `}</style>
 
@@ -677,6 +696,7 @@ function ProjectOverlay({ project, onClose }) {
           Close
         </button>
 
+        {/* Note : L'ordre HTML est important pour le mobile (Texte puis Image) */}
         <div className="info-col">
           <div className="header-box">
             <h1 className="project-title">{project.title}</h1>
