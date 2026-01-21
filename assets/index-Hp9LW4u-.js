@@ -4458,10 +4458,11 @@ vTroikaGlyphColor = uTroikaUseGlyphColors ? aTroikaGlyphColor / 255.0 : diffuse;
           }
         }
       `}),Ae.jsxs("div",{onMouseMove:p,className:"project-list-container",style:{position:"fixed",inset:0,backgroundColor:"white",color:"black",zIndex:1e4,cursor:"default",overflowY:"auto",display:"flex",flexDirection:"column",fontFamily:"'Inter', sans-serif",transform:f?"translateY(0)":"translateY(100%)",transition:"transform 0.6s cubic-bezier(0.76, 0, 0.24, 1)"},children:[Ae.jsx("button",{className:"close-btn",onClick:g,children:"Close"}),Ae.jsx("div",{className:"project-header",style:{display:"flex",justifyContent:"space-between",marginBottom:"60px"},children:Ae.jsx("h1",{style:{margin:0,fontWeight:"900",letterSpacing:"-0.04em",lineHeight:.8},children:"MY PROJECTS"})}),Ae.jsx("div",{style:{borderTop:"2px solid black"},children:o.map(x=>Ae.jsxs("div",{className:"project-row",onMouseEnter:()=>n(x.url),onMouseLeave:()=>n(null),onClick:()=>y(x),style:{color:i===x.url?"#862222":"black"},children:[Ae.jsx("span",{className:"col-year",children:x.year||"2025"}),Ae.jsx("span",{className:"col-title",children:x.title}),Ae.jsx("span",{className:"col-client",children:x.client||"IUT Lannion"}),Ae.jsx("span",{className:"col-link",children:"Discover project ↗"})]},x.id))}),i&&Ae.jsx("div",{className:"floating-preview",style:{position:"fixed",left:a.x,top:a.y,width:"400px",height:"280px",pointerEvents:"none",transform:"translate(30px, -50%)",zIndex:10001,borderRadius:"4px",overflow:"hidden",boxShadow:"0 30px 60px rgba(0,0,0,0.3)"},children:Ae.jsx("img",{src:i,alt:"preview",style:{width:"100%",height:"100%",objectFit:"cover"}})})]})]})}function pF({item:o,onSelect:e}){const t=Cb(sA,o.url),[i,n]=ut.useState(!1),a=4,u=t.image.width/t.image.height,f=a*u,d=-(f/2)-.7,p=-2+.2;return Ae.jsx("group",{children:Ae.jsxs("group",{position:o.position,rotation:o.rotation,children:[Ae.jsxs("mesh",{position:[0,0,.1],onPointerOver:()=>n(!0),onPointerOut:()=>n(!1),onClick:g=>{g.stopPropagation(),e(o)},children:[Ae.jsx("planeGeometry",{args:[f,a]}),Ae.jsx("meshStandardMaterial",{map:t,emissive:i?"white":"black",emissiveIntensity:i?.2:0})]}),Ae.jsxs("mesh",{position:[0,0,-.05],children:[Ae.jsx("boxGeometry",{args:[f+.2,a+.2,.15]}),Ae.jsx("meshStandardMaterial",{color:"#111111",roughness:.2,metalness:.5})]}),Ae.jsxs("group",{position:[d,p,0],children:[Ae.jsxs("mesh",{position:[0,0,.05],children:[Ae.jsx("planeGeometry",{args:[.8,.4]}),Ae.jsx("meshBasicMaterial",{color:"#F0F0F0"})]}),Ae.jsx(wo,{position:[-.35,.08,.06],fontSize:.09,color:"black",anchorX:"left",anchorY:"middle",maxWidth:.7,font:"https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff",fontWeight:800,children:o.title.toUpperCase()}),Ae.jsx(wo,{position:[-.35,-.08,.06],fontSize:.07,color:"#555",anchorX:"left",anchorY:"middle",font:"https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff",children:o.year||"2025"})]})]})})}function mF(){return Ae.jsxs("group",{children:[Ae.jsxs("mesh",{position:[0,0,-10],receiveShadow:!0,children:[Ae.jsx("planeGeometry",{args:[20,15]}),Ae.jsx("meshStandardMaterial",{color:"#202020"})]}),Ae.jsxs("mesh",{position:[0,0,15],rotation:[0,Math.PI,0],receiveShadow:!0,children:[Ae.jsx("planeGeometry",{args:[20,16]}),Ae.jsx("meshStandardMaterial",{color:"#732323"})]}),Ae.jsxs("mesh",{position:[-10,0,0],rotation:[0,Math.PI/2,0],receiveShadow:!0,children:[Ae.jsx("planeGeometry",{args:[30,16]}),Ae.jsx("meshStandardMaterial",{color:"#202020"})]}),Ae.jsxs("mesh",{position:[10,0,0],rotation:[0,-Math.PI/2,0],receiveShadow:!0,children:[Ae.jsx("planeGeometry",{args:[30,16]}),Ae.jsx("meshStandardMaterial",{color:"#202020"})]}),Ae.jsxs("mesh",{rotation:[-Math.PI/2,0,0],position:[0,-4,0],receiveShadow:!0,children:[Ae.jsx("planeGeometry",{args:[20,30]}),Ae.jsx(hF,{blur:[300,100],resolution:2048,mixBlur:1,mixStrength:50,roughness:1,depthScale:1.2,minDepthThreshold:.4,maxDepthThreshold:1.4,color:"#5b5b5b",metalness:.5})]})]})}function gF(){const{camera:o}=Gr();return ut.useEffect(()=>{o.lookAt(0,1.6,-10)},[o]),null}function vF(){return Ae.jsx(wo,{position:[0,0,-5],fontSize:.5,color:"white",children:"CHARGEMENT..."})}function yF({isLocked:o}){const{camera:e}=Gr(),[t,i]=ut.useState({forward:!1,backward:!1}),n={minX:-9,maxX:9,minZ:-14,maxZ:14};return ut.useEffect(()=>{if(Af)return;const a=f=>{switch(f.code){case"ArrowUp":case"KeyW":case"KeyZ":i(d=>({...d,forward:!0}));break;case"ArrowDown":case"KeyS":i(d=>({...d,backward:!0}));break}},u=f=>{switch(f.code){case"ArrowUp":case"KeyW":case"KeyZ":i(d=>({...d,forward:!1}));break;case"ArrowDown":case"KeyS":i(d=>({...d,backward:!1}));break}};return window.addEventListener("keydown",a),window.addEventListener("keyup",u),()=>{window.removeEventListener("keydown",a),window.removeEventListener("keyup",u)}},[]),wb(()=>{if(!Af&&!o)return;const a=new te;e.getWorldDirection(a),a.y=0,a.normalize();const u=.15,f=new te(0,0,0);if(t.forward&&f.add(a),t.backward&&f.sub(a),Af&&(pd.forward&&f.add(a),pd.backward&&f.sub(a)),f.length()>0){f.normalize().multiplyScalar(u);const d=e.position.x+f.x,p=e.position.z+f.z;d>n.minX&&d<n.maxX&&(e.position.x=d),p>n.minZ&&p<n.maxZ&&(e.position.z=p)}}),null}function xF({project:o,onClose:e}){const[t,i]=ut.useState(!1);ut.useEffect(()=>{requestAnimationFrame(()=>i(!0))},[]);const n=()=>{i(!1),setTimeout(e,600)};return Ae.jsxs(Ae.Fragment,{children:[Ae.jsx("style",{children:`
+        /* --- VERSIONS DESKTOP (Inchangé) --- */
         .fullscreen-overlay { 
           position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
           background: white; 
-          z-index: 20000; /* Z-INDEX AUGMENTÉ POUR PASSER AU DESSUS DE TOUT */
+          z-index: 20000; 
           display: grid; grid-template-columns: 35fr 65fr; 
           transform: translateY(100%); 
           transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
@@ -4473,7 +4474,8 @@ vTroikaGlyphColor = uTroikaUseGlyphColors ? aTroikaGlyphColor / 255.0 : diffuse;
           border-right: 1px solid #E0E0E0; 
           height: 100vh; 
           overflow-y: auto; 
-          background: white; /* Sécurité fond blanc */
+          background: white;
+          color: black; 
         }
         .header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
         .project-title { 
@@ -4505,7 +4507,6 @@ vTroikaGlyphColor = uTroikaUseGlyphColors ? aTroikaGlyphColor / 255.0 : diffuse;
         .meta-value { 
           font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black;
         }
-
         .action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
         .figma-btn {
           display: flex; justify-content: space-between; align-items: center;
@@ -4519,15 +4520,12 @@ vTroikaGlyphColor = uTroikaUseGlyphColors ? aTroikaGlyphColor / 255.0 : diffuse;
         .figma-btn:hover { background: #111; color: white; }
         .arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
         .figma-btn:hover .arrow-icon { transform: rotate(0deg); }
-
         .image-col { 
           position: relative; height: 100vh; background: #F0F0F0; overflow-y: auto; 
         }
         .project-image { 
           width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
         }
-
-        /* CLOSE BTN EN FIXED POUR MOBILE */
         .close-btn { 
           position: fixed; top: 0; right: 0; width: 100px; height: 100px; 
           background: black; color: white; border: none; cursor: pointer; 
@@ -4536,20 +4534,41 @@ vTroikaGlyphColor = uTroikaUseGlyphColors ? aTroikaGlyphColor / 255.0 : diffuse;
         }
         .close-btn:hover { background: #333; }
 
+        /* --- CORRECTION MOBILE RADICALE --- */
         @media (max-width: 768px) {
           .fullscreen-overlay { 
-            grid-template-columns: 1fr; 
-            grid-template-rows: auto auto; 
-            display: block; /* Important pour le scroll mobile */
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+            /* On casse le Grid et on passe en bloc simple avec scroll global */
+            display: block !important; 
+            overflow-y: scroll !important; /* Le scroll se fait sur le parent */
+            -webkit-overflow-scrolling: touch; /* Fluidité iOS */
           }
-          .image-col { height: auto; width: 100%; position: relative; }
-          .info-col { height: auto; overflow: visible; }
-          .header-box { padding: 30px 20px; padding-top: 80px; /* Espace pour le bouton close */ }
-          .project-title { font-size: 3.5rem; }
-          .desc-box { padding: 30px 20px; }
-          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; }
+          
+          .info-col { 
+            display: block !important;
+            height: auto !important; 
+            width: 100% !important;
+            overflow: visible !important; 
+            border-right: none !important;
+          }
+
+          .image-col { 
+            display: block !important;
+            height: auto !important; 
+            width: 100% !important;
+            position: relative !important;
+            overflow: visible !important;
+          }
+          
+          .project-image {
+             height: auto !important;
+             max-height: 80vh; /* Limite la hauteur de l'image sur mobile */
+          }
+
+          /* Ajustements espacements mobile */
+          .header-box { padding: 80px 20px 30px 20px !important; }
+          .project-title { font-size: 3rem !important; word-break: break-word; }
+          .desc-box { padding: 30px 20px !important; display: block !important; }
+          .close-btn { width: 60px; height: 60px; font-size: 0.8rem; background: black !important; color: white !important; }
         }
       `}),Ae.jsxs("div",{className:`fullscreen-overlay ${t?"active":""}`,children:[Ae.jsx("button",{className:"close-btn",onClick:n,children:"Close"}),Ae.jsxs("div",{className:"info-col",children:[Ae.jsx("div",{className:"header-box",children:Ae.jsx("h1",{className:"project-title",children:o.title})}),Ae.jsx("div",{className:"desc-box",children:Ae.jsx("p",{children:o.description})}),Ae.jsxs("div",{className:"meta-grid",children:[Ae.jsxs("div",{className:"meta-item",children:[Ae.jsx("span",{className:"meta-label",children:"Year"}),Ae.jsx("span",{className:"meta-value",children:o.year})]}),Ae.jsxs("div",{className:"meta-item",children:[Ae.jsx("span",{className:"meta-label",children:"Client"}),Ae.jsx("span",{className:"meta-value",children:o.client})]}),Ae.jsxs("div",{className:"meta-item",children:[Ae.jsx("span",{className:"meta-label",children:"Technique"}),Ae.jsx("span",{className:"meta-value",children:o.tools})]}),Ae.jsxs("div",{className:"meta-item",children:[Ae.jsx("span",{className:"meta-label",children:"Credit"}),Ae.jsx("span",{className:"meta-value",children:o.credits})]})]}),o.link&&Ae.jsx("div",{className:"action-box",children:Ae.jsxs("a",{href:o.link,target:"_blank",rel:"noopener noreferrer",className:"figma-btn",children:[Ae.jsx("span",{children:"View Project"}),Ae.jsx("span",{className:"arrow-icon",children:"→"})]})})]}),Ae.jsx("div",{className:"image-col",children:Ae.jsx("img",{src:o.url,alt:o.title,className:"project-image"})})]})]})}function IE({text:o,delay:e=0,speed:t=50,style:i}){const[n,a]=ut.useState(""),[u,f]=ut.useState(!1);return ut.useEffect(()=>{const d=setTimeout(()=>f(!0),e);return()=>clearTimeout(d)},[e]),ut.useEffect(()=>{if(!u)return;let d=0;const p=setInterval(()=>{a(o.slice(0,d+1)),d++,d>o.length&&clearInterval(p)},t);return()=>clearInterval(p)},[o,t,u]),Ae.jsx("div",{style:i,children:n})}function _F({isVisible:o,onEnter:e}){return Ae.jsxs(Ae.Fragment,{children:[Ae.jsx("style",{children:`
 @keyframes distordu {
