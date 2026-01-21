@@ -4,6 +4,7 @@ import {
   MeshReflectorMaterial,
   Text,
   PointerLockControls,
+  DeviceOrientationControls,
 } from "@react-three/drei";
 import { TextureLoader, Vector3 } from "three";
 
@@ -479,10 +480,11 @@ function Loading() {
 function MoveController({ isLocked }) {
   const { camera } = useThree();
   const [movement, setMovement] = useState({ forward: false, backward: false });
-  // Limites de collision
-  const LIMITS = { minX: -9, maxX: 9, minZ: -9, maxZ: 9 };
+  const LIMITS = { minX: -9, maxX: 9, minZ: -14, maxZ: 14 };
 
+  // --- LOGIQUE CLAVIER (DESKTOP - INCHANGÉE) ---
   useEffect(() => {
+    if (isMobile) return; // On ne charge pas le clavier sur mobile
     const handleKeyDown = (e) => {
       switch (e.code) {
         case "ArrowUp":
@@ -517,27 +519,45 @@ function MoveController({ isLocked }) {
     };
   }, []);
 
+  // --- BOUCLE DE JEU ---
   useFrame(() => {
-    if (!isLocked) return;
-    const speed = 0.15;
+    // Sur mobile, on veut bouger même si "isLocked" est false (car pas de pointerLock sur mobile)
+    // Sur desktop, on respecte isLocked
+    if (!isMobile && !isLocked) return;
+
+    // Si un menu est ouvert (overlay projet), on arrête de bouger
+    // Tu peux passer une prop "canMove" si tu veux bloquer le mouvement quand un projet est ouvert
+
     const direction = new Vector3();
     camera.getWorldDirection(direction);
     direction.y = 0;
     direction.normalize();
 
+    const speed = 0.15; // Vitesse de marche
     const moveVector = new Vector3(0, 0, 0);
+
+    // 1. INPUT DESKTOP
     if (movement.forward) moveVector.add(direction);
     if (movement.backward) moveVector.sub(direction);
 
+    // 2. INPUT MOBILE (Boutons tactiles)
+    if (isMobile) {
+      if (mobileInputs.forward) moveVector.add(direction);
+      if (mobileInputs.backward) moveVector.sub(direction);
+    }
+
+    // APPLICATION DU MOUVEMENT
     if (moveVector.length() > 0) {
       moveVector.normalize().multiplyScalar(speed);
       const nextX = camera.position.x + moveVector.x;
       const nextZ = camera.position.z + moveVector.z;
+
       // Collisions
       if (nextX > LIMITS.minX && nextX < LIMITS.maxX) camera.position.x = nextX;
       if (nextZ > LIMITS.minZ && nextZ < LIMITS.maxZ) camera.position.z = nextZ;
     }
   });
+
   return null;
 }
 
@@ -1065,12 +1085,166 @@ function BoutonProjets({ position, onActivate }) {
     </group>
   );
 }
+
+// --- LOGIQUE MOBILE ---
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// État global pour le mouvement mobile (évite les re-renders intempestifs)
+const mobileInputs = {
+  forward: false,
+  backward: false,
+};
+
+function MobileInterface({ onPermissionGranted, hasPermission }) {
+  if (!isMobile) return null;
+
+  // 1. ÉCRAN DE PERMISSION (Si on n'a pas encore l'accès)
+  if (!hasPermission) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "black",
+          color: "white",
+          zIndex: 99999,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          fontFamily: "'Inter', sans-serif",
+          textAlign: "center",
+          padding: "20px",
+        }}
+      >
+        <h2 style={{ textTransform: "uppercase", marginBottom: "20px" }}>
+          Expérience Immersive
+        </h2>
+        <p style={{ marginBottom: "40px", maxWidth: "300px", opacity: 0.7 }}>
+          Cette expérience utilise les capteurs de votre téléphone. Tournez
+          votre appareil pour regarder autour de vous.
+        </p>
+        <button
+          onClick={async () => {
+            // Demande la permission pour iOS 13+
+            if (
+              typeof DeviceOrientationEvent !== "undefined" &&
+              typeof DeviceOrientationEvent.requestPermission === "function"
+            ) {
+              try {
+                const response =
+                  await DeviceOrientationEvent.requestPermission();
+                if (response === "granted") onPermissionGranted();
+                else
+                  alert(
+                    "Permission refusée. L'expérience nécessite l'accès à l'orientation.",
+                  );
+              } catch (e) {
+                console.error(e);
+              }
+            } else {
+              // Android ou vieux iOS (pas besoin de permission explicite)
+              onPermissionGranted();
+            }
+          }}
+          style={{
+            background: "white",
+            color: "black",
+            border: "none",
+            padding: "15px 30px",
+            fontSize: "1rem",
+            fontWeight: "900",
+            textTransform: "uppercase",
+            cursor: "pointer",
+          }}
+        >
+          COMMENCER L'EXPÉRIENCE
+        </button>
+      </div>
+    );
+  }
+
+  // 2. BOUTONS DE NAVIGATION (Une fois la permission accordée)
+  // Deux gros boutons invisibles ou stylisés en bas de l'écran
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: "30px",
+        left: 0,
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        gap: "20px",
+        zIndex: 9000,
+        userSelect: "none",
+        touchAction: "none",
+      }}
+    >
+      {/* Bouton RECULER */}
+      <button
+        onTouchStart={(e) => {
+          e.preventDefault();
+          mobileInputs.backward = true;
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          mobileInputs.backward = false;
+        }}
+        style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid white",
+          color: "white",
+          fontSize: "24px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        ↓
+      </button>
+
+      {/* Bouton AVANCER */}
+      <button
+        onTouchStart={(e) => {
+          e.preventDefault();
+          mobileInputs.forward = true;
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          mobileInputs.forward = false;
+        }}
+        style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid white",
+          color: "white",
+          fontSize: "24px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        ↑
+      </button>
+    </div>
+  );
+}
 // --- APP PRINCIPAL ---
 export default function App() {
   const [isLocked, setIsLocked] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [lastCloseTime, setLastCloseTime] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Ici le menu est fermé par défaut
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hasMobilePermission, setHasMobilePermission] = useState(false); // Ici le menu est fermé par défaut
   const closeProjectMenu = () => {
     setLastCloseTime(Date.now()); // On marque le temps d'arrêt ICI
     setIsMenuOpen(false);
@@ -1110,6 +1284,14 @@ export default function App() {
         background: "black",
       }}
     >
+      {/* 1. Interface Mobile (Permission + Boutons) */}
+      <MobileInterface
+        hasPermission={hasMobilePermission}
+        onPermissionGranted={() => {
+          setHasMobilePermission(true);
+          setIsLocked(true);
+        }}
+      />
       <IntroOverlay
         isVisible={!isLocked && !selectedProject && !isMenuOpen}
         onEnter={() => setIsLocked(true)}
@@ -1141,7 +1323,7 @@ export default function App() {
           zIndex: 0,
         }}
       >
-        {isLocked && (
+        {!isMobile && isLocked && (
           <div
             style={{
               position: "fixed",
@@ -1185,8 +1367,13 @@ export default function App() {
             shadow-bias={-0.0001}
           />
           <Suspense fallback={<Loading />}>
-            {isLocked && <PointerLockControls />}
-            <MoveController isLocked={isLocked} />
+            {!isMobile && isLocked && <PointerLockControls />}
+            {/* Contrôles Mobile Gyroscope */}
+            {isMobile && hasMobilePermission && <DeviceOrientationControls />}
+            <MoveController
+              isLocked={isLocked}
+              hasMobilePermission={hasMobilePermission}
+            />
             <BoutonProjets
               position={[0, 1.6, 9.9]}
               onActivate={() => {
