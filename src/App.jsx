@@ -83,6 +83,7 @@ export default function App() {
     <div style={{ width: "100%", height: "100%", background: "black", position: 'relative' }}>
       
       {/* 1. INTERFACE MOBILE (Permissions & Contrôles Tactiles) */}
+      <LoaderScreen />
       <MobileInterface
         hasPermission={hasMobilePermission}
         onPermissionGranted={() => {
@@ -169,7 +170,7 @@ export default function App() {
           shadow-mapSize={[2048, 2048]} // Ombre plus nette
         />
 
-        <Suspense fallback={<LoaderScreen />}>
+      <Suspense fallback={null}>
           {/* CONTRÔLES */}
           {!isMobile && isLocked && <PointerLockControls selector="#root" />}
           {isMobile && hasMobilePermission && <DeviceOrientationControls />}

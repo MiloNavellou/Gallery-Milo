@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Objet partagé pour stocker l'état des boutons tactiles
+// État partagé pour les contrôles
 export const mobileInputs = {
   forward: false,
   backward: false,
@@ -11,7 +11,7 @@ const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 export default function MobileInterface({ onPermissionGranted, hasPermission }) {
   if (!isMobile) return null;
 
-  // 1. ÉCRAN PERMISSION
+  // 1. Écran de demande de permission
   if (!hasPermission) {
     return (
       <div style={{
@@ -44,22 +44,24 @@ export default function MobileInterface({ onPermissionGranted, hasPermission }) 
     );
   }
 
-  // 2. BOUTONS TACTILES
+  // 2. Boutons de navigation
   return (
     <div style={{
       position: "fixed", bottom: "30px", left: 0, width: "100%",
       display: "flex", justifyContent: "center", gap: "20px", zIndex: 9000,
-      userSelect: "none", touchAction: "none"
+      userSelect: "none", touchAction: "none",
+      // FIX CRITIQUE : Le conteneur laisse passer les clics (pour pouvoir cliquer sur les tableaux)
+      pointerEvents: "none" 
     }}>
       <button
         onTouchStart={(e) => { e.preventDefault(); mobileInputs.backward = true; }}
         onTouchEnd={(e) => { e.preventDefault(); mobileInputs.backward = false; }}
-        style={btnStyle}
+        style={{ ...btnStyle, pointerEvents: "auto" }} // Le bouton capture le clic
       >↓</button>
       <button
         onTouchStart={(e) => { e.preventDefault(); mobileInputs.forward = true; }}
         onTouchEnd={(e) => { e.preventDefault(); mobileInputs.forward = false; }}
-        style={btnStyle}
+        style={{ ...btnStyle, pointerEvents: "auto" }} // Le bouton capture le clic
       >↑</button>
     </div>
   );

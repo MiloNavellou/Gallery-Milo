@@ -5,7 +5,7 @@ export default function Tableau({ item, onSelect }) {
   const texture = useTexture(item.url);
   const [hovered, setHover] = useState(false);
 
-  // Calcul dimensions optimisé
+  // Optimisation dimensions
   const { width, height } = useMemo(() => {
     const h = 4;
     const ratio = texture.image ? texture.image.width / texture.image.height : 1;
@@ -15,7 +15,6 @@ export default function Tableau({ item, onSelect }) {
   const cartelX = -(width / 2) - 0.7;
   const cartelY = -(height / 2) + 0.2;
 
-  // Curseur interactif
   useEffect(() => {
     if (hovered) document.body.style.cursor = 'pointer';
     else document.body.style.cursor = 'auto';
@@ -23,12 +22,14 @@ export default function Tableau({ item, onSelect }) {
 
   return (
     <group position={item.position} rotation={item.rotation}>
-      {/* ŒUVRE */}
+      {/* ZONE CLIQUABLE */}
       <mesh
         position={[0, 0, 0.1]}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
-        onClick={(e) => {
+        // FIX MOBILE : onPointerUp permet de valider le clic 
+        // même si le gyroscope a fait bouger la caméra de quelques pixels.
+        onPointerUp={(e) => {
           e.stopPropagation();
           onSelect(item);
         }}
