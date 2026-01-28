@@ -4,7 +4,7 @@ import { PointerLockControls, DeviceOrientationControls, useTexture } from "@rea
 
 // --- IMPORTS LOCAUX ---
 import { DATA } from "./data";
-import "./App.css"; // Contient tous les styles des overlays
+import "./App.css";
 
 // Composants de logique et UI
 import MoveController from "./components/MoveController";
@@ -24,9 +24,27 @@ import {
   BoutonProjets 
 } from "./components/Environment";
 
+// --- CORRECTION DES CHEMINS (FIX GITHUB PAGES) ---
+// Ajoute le base URL (/Gallery-Milo/) si on est en prod et que le chemin est relatif
+const fixPath = (path) => {
+  if (!path) return path;
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  
+  // import.meta.env.BASE_URL vaut "/Gallery-Milo/" grâce à vite.config.js
+  const baseUrl = import.meta.env.BASE_URL; 
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  return `${baseUrl}${cleanPath}`;
+};
+
+// On crée une version corrigée des données pour toute l'app
+const FIXED_DATA = DATA.map(item => ({
+  ...item,
+  url: fixPath(item.url)
+}));
+
 // --- PRÉCHARGEMENT ---
-// Lance le chargement des images dès le début pour éviter le pop-in
-const TEXTURE_URLS = DATA.map(d => d.url);
+const TEXTURE_URLS = FIXED_DATA.map(d => d.url);
 useTexture.preload(TEXTURE_URLS);
 
 export default function App() {
@@ -37,19 +55,16 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasMobilePermission, setHasMobilePermission] = useState(false);
 
-  // Détection basique pour savoir si on est sur mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   // --- HANDLERS ---
   const closeProjectMenu = () => {
     setLastCloseTime(Date.now());
     setIsMenuOpen(false);
-    // Petit délai pour éviter que le clic ne soit interprété comme un tir/clic dans le canvas
     setTimeout(() => setIsLocked(true), 100);
   };
 
   const handleProjectSelect = (project) => {
-    // Anti-rebond : empêche de rouvrir un projet immédiatement après fermeture
     if (Date.now() - lastCloseTime < 500) return;
     
     setSelectedProject(project);
@@ -58,8 +73,6 @@ export default function App() {
   };
 
   // --- EFFECTS (Pointer Lock) ---
-  
-  // Déverrouille si un menu s'ouvre
   useEffect(() => {
     if (selectedProject || isMenuOpen) {
       if (document.pointerLockElement) document.exitPointerLock();
@@ -67,10 +80,8 @@ export default function App() {
     }
   }, [selectedProject, isMenuOpen]);
 
-  // Écoute les changements natifs du navigateur (touche Echap)
   useEffect(() => {
     const handleLockChange = () => {
-      // Si on perd le lock et qu'on n'est pas sur mobile, on met à jour l'état
       if (document.pointerLockElement === null && !isMobile) {
         setIsLocked(false);
       }
@@ -82,7 +93,7 @@ export default function App() {
   return (
     <div style={{ width: "100%", height: "100%", background: "black", position: 'relative' }}>
       
-      {/* 1. INTERFACE MOBILE (Permissions & Contrôles Tactiles) */}
+      {/* 1. INTERFACE MOBILE */}
       <LoaderScreen />
       <MobileInterface
         hasPermission={hasMobilePermission}
@@ -92,16 +103,16 @@ export default function App() {
         }}
       />
 
-      {/* 2. ÉCRAN D'ACCUEIL (Intro Typewriter) */}
+      {/* 2. ÉCRAN D'ACCUEIL */}
       <IntroOverlay
         isVisible={!isLocked && !selectedProject && !isMenuOpen && !hasMobilePermission}
         onEnter={() => setIsLocked(true)}
       />
 
-      {/* 3. MENU LISTE DES PROJETS (Overlay) */}
+      {/* 3. MENU LISTE DES PROJETS */}
       {isMenuOpen && (
         <ProjectListOverlay
-          projects={DATA}
+          projects={FIXED_DATA} // Utilise les données corrigées
           onClose={closeProjectMenu}
           onSelect={(p) => {
              setIsMenuOpen(false);
@@ -110,101 +121,82 @@ export default function App() {
         />
       )}
 
-      {/* 4. DÉTAIL PROJET (Overlay complet) */}
+      {/* 4. DÉTAIL PROJET */}
       {selectedProject && (
         <ProjectOverlay
           project={selectedProject}
           onClose={() => {
             setLastCloseTime(Date.now());
             setSelectedProject(null);
-            // Sur Desktop, on relance l'immersion après fermeture
             if(!isMobile) setIsLocked(true); 
           }}
         />
       )}
 
-      {/* 5. VISEUR CENTRAL (Crosshair) - Uniquement Desktop verrouillé */}
+      {/* 5. VISEUR CENTRAL */}
       {!isMobile && isLocked && (
         <div
           style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            width: "40px",
-            height: "40px",
-            border: "1px solid rgba(255,255,255,0.8)",
-            borderRadius: "50%",
-            transform: "translate(-50%, -50%)",
-            pointerEvents: "none",
-            zIndex: 9999,
-            mixBlendMode: "difference",
-            animation: "distordu 3s ease-in-out infinite"
+            position: "fixed", top: "50%", left: "50%",
+            width: "40px", height: "40px",
+            border: "1px solid rgba(255,255,255,0.8)", borderRadius: "50%",
+            transform: "translate(-50%, -50%)", pointerEvents: "none", zIndex: 9999,
+            mixBlendMode: "difference", animation: "distordu 3s ease-in-out infinite"
           }}
         />
       )}
 
       {/* --- SCÈNE 3D --- */}
-      <Canvas
-        shadows
-        // Optimisation : Limite le rendu à x2 max pour les écrans Retina (évite la surchauffe)
-        dpr={[1, 2]} 
-        // Configuration haute performance
-        gl={{ powerPreference: "high-performance", antialias: false, stencil: false, depth: true }}
-        camera={{ position: [0, 1.6, 4], fov: 75 }}
-        style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-      >
-        <RegardInitial />
-        
-        {/* === LUMIÈRES (Configuration Originale Restaurée) === */}
-        <fog attach="fog" args={["black", 5, 24]} />
-        
-        <ambientLight intensity={0.8} />
-        
-        <spotLight
-          position={[0, 15, 0]}
-          angle={1.2}
-          penumbra={0.5}
-          intensity={5000}
-          castShadow
-          shadow-bias={-0.0001}
-          shadow-mapSize={[2048, 2048]} // Ombre plus nette
-        />
-
-      <Suspense fallback={null}>
-          {/* CONTRÔLES */}
-          {!isMobile && isLocked && <PointerLockControls selector="#root" />}
-          {isMobile && hasMobilePermission && <DeviceOrientationControls />}
+      {/* FIX CRITIQUE IOS : On cache le conteneur du canvas quand l'overlay est ouvert */}
+      <div style={{ 
+        position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", zIndex: 1,
+        visibility: selectedProject ? 'hidden' : 'visible' 
+      }}>
+        <Canvas
+          shadows
+          dpr={[1, 2]} 
+          gl={{ powerPreference: "high-performance", antialias: false, stencil: false, depth: true }}
+          camera={{ position: [0, 1.6, 4], fov: 75 }}
+        >
+          <RegardInitial />
           
-          <MoveController
-            isLocked={isLocked}
-            isMobile={isMobile}
+          <fog attach="fog" args={["black", 5, 24]} />
+          <ambientLight intensity={0.8} />
+          <spotLight
+            position={[0, 15, 0]} angle={1.2} penumbra={0.5} intensity={5000}
+            castShadow shadow-bias={-0.0001} shadow-mapSize={[2048, 2048]}
           />
 
-          {/* DÉCOR */}
-          <Couloir />
-          <MurPresentation />
-          <MurPresentationGauche />
-          
-          {/* BOUTON D'ACCÈS AU MENU */}
-          <BoutonProjets
-            position={[0, 1.6, 9.9]}
-            onActivate={() => {
-              document.exitPointerLock();
-              setIsMenuOpen(true);
-              setIsLocked(false);
-            }}
-          />
+          <Suspense fallback={null}>
+            {!isMobile && isLocked && <PointerLockControls selector="#root" />}
+            {isMobile && hasMobilePermission && <DeviceOrientationControls />}
+            
+            <MoveController isLocked={isLocked} isMobile={isMobile} />
 
-          {/* TABLEAUX (Génération dynamique) */}
-          {DATA.map((item) => (
-            <Tableau
-              key={item.id}
-              item={item}
-              onSelect={handleProjectSelect}
+            <Couloir />
+            <MurPresentation />
+            <MurPresentationGauche />
+            
+            <BoutonProjets
+              position={[0, 1.6, 9.9]}
+              onActivate={() => {
+                document.exitPointerLock();
+                setIsMenuOpen(true);
+                setIsLocked(false);
+              }}
             />
-          ))}
-        </Suspense>
-      </Canvas>
+
+            {/* Utilise FIXED_DATA ici aussi pour les textures */}
+            {FIXED_DATA.map((item) => (
+              <Tableau
+                key={item.id}
+                item={item}
+                onSelect={handleProjectSelect}
+              />
+            ))}
+          </Suspense>
+        </Canvas>
+      </div>
     </div>
   );
 }

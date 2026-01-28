@@ -354,3 +354,274 @@ html, body, #root, canvas {
   background: white;
   transition: width 0.2s linear;
 }
+/* --- GLOBAL & RESET --- */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: black;
+
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Inter', sans-serif;
+}
+html, body, #root, canvas {
+  touch-action: none; 
+  -webkit-tap-highlight-color: transparent; 
+}
+
+.pointer-cursor { cursor: pointer !important; }
+
+/* --- ANIMATIONS --- */
+@keyframes distordu {
+  0%, 100% { height: 15px; width: 10px; transform: translate(-50%, -50%) scale(1); }
+  50% { height: 10px; width: 15px; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* --- PROJECT OVERLAY (CORRECTIF IOS APPLIQUÉ ICI) --- */
+.fullscreen-overlay { 
+  position: fixed; top: 0; left: 0; 
+  width: 100vw; height: 100vh; 
+  background: white; 
+  z-index: 20000; 
+  display: grid; grid-template-columns: 35fr 65fr; 
+  
+  /* FIX IOS : Utilisation de translate3d pour forcer le GPU */
+  transform: translate3d(0, 100%, 0); 
+  -webkit-transform: translate3d(0, 100%, 0);
+  
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1); 
+  will-change: transform;
+  
+  /* FIX IOS : Évite les clignotements blancs */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.fullscreen-overlay.active { 
+  /* FIX IOS */
+  transform: translate3d(0, 0, 0); 
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+.info-col { 
+  display: flex; flex-direction: column; 
+  border-right: 1px solid #E0E0E0; 
+  height: 100vh; 
+  overflow-y: auto; 
+  background: white;
+  color: black; 
+  position: relative;
+  z-index: 2;
+}
+
+.header-box { padding: 60px 40px; border-bottom: 1px solid #E0E0E0; }
+
+.project-title { 
+  font-family: 'Inter', sans-serif; font-weight: 900; 
+  font-size: clamp(3rem, 5vw, 6rem); line-height: 0.9; 
+  letter-spacing: -2px; margin: 0; text-transform: uppercase; color: black;
+}
+
+.desc-box { 
+  flex: 1; padding: 40px; 
+  font-family: 'Inter', sans-serif; font-size: 1.1rem; 
+  line-height: 1.6; color: #333; 
+  display: flex; align-items: center; 
+}
+
+.meta-grid { 
+  display: grid; grid-template-columns: 1fr 1fr; 
+  border-top: 1px solid #E0E0E0; 
+}
+
+.meta-item { 
+  padding: 20px; 
+  border-right: 1px solid #E0E0E0; 
+  border-bottom: 1px solid #E0E0E0; 
+}
+.meta-item:nth-child(2n) { border-right: none; }
+
+.meta-label { 
+  display: block; font-family: 'Inter', sans-serif; 
+  font-size: 0.75rem; font-weight: 700; 
+  text-transform: uppercase; color: #999; margin-bottom: 5px; 
+}
+
+.meta-value { 
+  font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: black;
+}
+
+.action-box { padding: 0; border-bottom: 1px solid #E0E0E0; }
+
+.figma-btn {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; padding: 30px 40px;
+  background: white; color: black;
+  border: none; cursor: pointer; text-decoration: none;
+  font-family: 'Inter', sans-serif; font-weight: 900;
+  font-size: 1.5rem; text-transform: uppercase; letter-spacing: -1px;
+  transition: background 0.3s, color 0.3s;
+  box-sizing: border-box; 
+}
+.figma-btn:hover { background: #111; color: white; }
+
+.arrow-icon { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
+.figma-btn:hover .arrow-icon { transform: rotate(0deg); }
+
+.image-col { 
+  position: relative; height: 100vh; background: #F0F0F0; overflow-y: auto; 
+}
+
+.project-image-full { 
+  width: 100%; height: auto; min-height: 100%; object-fit: cover; display: block; 
+}
+
+.close-btn { 
+  position: fixed; top: 0; right: 0; width: 100px; height: 100px; 
+  background: black; color: white; border: none; cursor: pointer; 
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1rem; 
+  text-transform: uppercase; z-index: 20002; transition: background 0.3s; 
+}
+.close-btn:hover { background: #333; }
+
+/* --- RESPONSIVE MOBILE (Fix iOS inclus) --- */
+@media (max-width: 768px) {
+  .fullscreen-overlay { 
+    display: block !important; 
+    height: 100dvh !important; 
+    overflow-y: scroll !important; 
+    -webkit-overflow-scrolling: touch; 
+  }
+  
+  .info-col { 
+    display: block !important;
+    height: auto !important; 
+    width: 100% !important;
+    overflow: visible !important; 
+    border-right: none !important;
+    transform: translateZ(0); 
+  }
+
+  .desc-box {
+      display: block !important;
+      flex: none !important; 
+      padding: 30px 20px !important;
+  }
+
+  .image-col { 
+    display: block !important;
+    height: auto !important; 
+    width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+    transform: translateZ(0);
+    padding-bottom: 40px; 
+  }
+  
+  .project-image-full {
+     height: auto !important;
+     max-height: 80vh; 
+  }
+
+  .header-box { padding: 80px 20px 30px 20px !important; }
+  .project-title { font-size: 3rem !important; word-break: break-word; }
+  .close-btn { width: 60px; height: 60px; font-size: 0.8rem; background: black !important; color: white !important; }
+}
+
+/* --- PROJECT LIST (DESIGN ORIGINAL) --- */
+.project-list-container {
+  padding: 5vw;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.project-header-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 60px;
+}
+
+.project-title-main {
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.8;
+  font-size: clamp(3rem, 10vw, 8rem); 
+}
+
+.project-list-wrapper { border-top: 2px solid black; }
+
+.project-row {
+  display: grid;
+  grid-template-columns: 100px 2.5fr 1.5fr 1fr; 
+  align-items: center;
+  padding: 40px 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.col-year { font-size: 1.1rem; opacity: 0.8; }
+.col-title { font-size: 2rem; font-weight: 700; text-transform: uppercase; }
+.col-client { font-size: 1.1rem; opacity: 0.8; }
+.col-link { text-align: right; font-weight: 700; }
+
+.floating-preview {
+  position: fixed;
+  pointer-events: none;
+  width: 400px;
+  height: 280px;
+  z-index: 10001;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  transform: translate(30px, -50%); 
+  display: block;
+}
+
+.floating-img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 768px) {
+  .project-list-container { padding: 20px; padding-top: 80px; }
+  .project-title-main { font-size: 3.5rem; line-height: 1; margin-bottom: 20px; }
+  .project-row { display: flex; flex-direction: column; align-items: flex-start; padding: 25px 0; gap: 10px; }
+  .col-year { font-size: 0.9rem; color: #999; }
+  .col-title { font-size: 1.8rem; line-height: 1.1; }
+  .col-client { font-size: 1rem; margin-bottom: 10px; }
+  .col-link { align-self: flex-start; font-size: 0.9rem; text-decoration: underline; text-align: left; }
+  .floating-preview { display: none !important; }
+}
+
+/* --- Animation Scale au Hover --- */
+.project-image-full {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+.image-col:hover .project-image-full { transform: scale(1.05); }
+.image-col { overflow: hidden; }
+
+/* --- LOADER ECRAN --- */
+.loader-container {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: #000000;
+  z-index: 99999; 
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  color: white; font-family: 'Inter', sans-serif;
+  transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: transform;
+}
+.loader-hidden { transform: translateY(-100%); pointer-events: none; }
+.loader-percent { font-size: 10vw; font-weight: 900; letter-spacing: -5px; line-height: 1; }
+.loader-text { margin-top: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; }
+.loader-bar-bg { position: absolute; bottom: 50px; width: 200px; height: 2px; background: #333; }
+.loader-bar-fill { height: 100%; background: white; transition: width 0.2s linear; }
