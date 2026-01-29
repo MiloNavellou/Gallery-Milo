@@ -24,31 +24,23 @@ import {
   BoutonProjets 
 } from "./components/Environment";
 
-// --- CORRECTION DES CHEMINS (FIX GITHUB PAGES) ---
-// Ajoute le base URL (/Gallery-Milo/) si on est en prod et que le chemin est relatif
 const fixPath = (path) => {
   if (!path) return path;
   if (path.startsWith('http') || path.startsWith('data:')) return path;
-  
-  // import.meta.env.BASE_URL vaut "/Gallery-Milo/" grâce à vite.config.js
   const baseUrl = import.meta.env.BASE_URL; 
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
   return `${baseUrl}${cleanPath}`;
 };
 
-// On crée une version corrigée des données pour toute l'app
 const FIXED_DATA = DATA.map(item => ({
   ...item,
   url: fixPath(item.url)
 }));
 
-// --- PRÉCHARGEMENT ---
 const TEXTURE_URLS = FIXED_DATA.map(d => d.url);
 useTexture.preload(TEXTURE_URLS);
 
 export default function App() {
-  // --- ÉTATS ---
   const [isLocked, setIsLocked] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [lastCloseTime, setLastCloseTime] = useState(0);
@@ -57,29 +49,53 @@ export default function App() {
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  // --- HANDLERS ---
+  // FONCTION POUR OUVRIR LE MENU
+  const openProjectMenu = () => {
+    console.log("🔵 openProjectMenu appelée");
+    
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+    
+    document.body.style.cursor = "auto";
+    setIsLocked(false);
+    setIsMenuOpen(true);
+    
+    console.log("✅ Menu ouvert");
+  };
+
   const closeProjectMenu = () => {
+    console.log("❌ Fermeture du menu");
     setLastCloseTime(Date.now());
     setIsMenuOpen(false);
     setTimeout(() => setIsLocked(true), 100);
   };
 
-const handleProjectSelect = (project) => {
-    // 1. Délai de sécurité (2 secondes comme demandé précédemment)
+  const handleProjectSelect = (project) => {
     if (Date.now() - lastCloseTime < 2000) return;
-    
-    // 2. ORDRE CRUCIAL :
-    // A. On force le navigateur à lâcher la souris TOUT DE SUITE
     document.exitPointerLock();
-    
-    // B. On dit à React : "Arrête d'afficher les contrôles 3D (PointerLockControls)"
     setIsLocked(false);
-    
-    // C. On affiche l'overlay du projet
     setSelectedProject(project);
   };
 
-  // --- EFFECTS (Pointer Lock) ---
+  // Fonction pour sélectionner depuis la liste
+  const handleProjectSelectFromList = (project) => {
+    console.log("🎨 Projet sélectionné:", project.title);
+    console.log("📊 État avant:", { isMenuOpen, selectedProject: selectedProject?.title });
+    
+    document.exitPointerLock();
+    setIsLocked(false);
+    
+    // D'abord fermer le menu
+    setIsMenuOpen(false);
+    
+    // Puis ouvrir le projet avec un petit délai pour que React ait le temps de mettre à jour
+    setTimeout(() => {
+      console.log("🚀 Ouverture du projet:", project.title);
+      setSelectedProject(project);
+    }, 100);
+  };
+
   useEffect(() => {
     if (selectedProject || isMenuOpen) {
       if (document.pointerLockElement) document.exitPointerLock();
@@ -96,42 +112,34 @@ const handleProjectSelect = (project) => {
     document.addEventListener("pointerlockchange", handleLockChange);
     return () => document.removeEventListener("pointerlockchange", handleLockChange);
   }, [isMobile]);
-  // ... (vos autres useEffects)
 
-  // GARDIEN DU CURSEUR
-  // Si un projet est ouvert OU le menu est ouvert -> on force le curseur et le déverrouillage
   useEffect(() => {
     if (selectedProject || isMenuOpen) {
       const unlock = () => {
-        if (document.pointerLockElement) {
-          document.exitPointerLock();
-        }
+        if (document.pointerLockElement) document.exitPointerLock();
         document.body.style.cursor = "auto";
       };
-      
-      // On l'exécute immédiatement
       unlock();
-      
-      // ET on insiste 100ms après (pour contrer le navigateur qui serait lent)
       const timer = setTimeout(unlock, 100);
       return () => clearTimeout(timer);
     }
   }, [selectedProject, isMenuOpen]);
 
+  // DEBUG : Logger les changements d'état
+  useEffect(() => {
+    console.log("📌 État actuel:", {
+      isMenuOpen,
+      selectedProject: selectedProject?.title || null,
+      isLocked
+    });
+  }, [isMenuOpen, selectedProject, isLocked]);
 
   return (
     <div style={{ width: "100%", height: "100%", background: "black", position: 'relative' }}>
       
-      {/* 1. INTERFACE MOBILE */}
+      {/* 1. Loader (Au fond) */}
       <LoaderScreen />
-      <MobileInterface
-        hasPermission={hasMobilePermission}
-        onPermissionGranted={() => {
-          setHasMobilePermission(true);
-          setIsLocked(true);
-        }}
-      />
-
+      
       {/* 2. ÉCRAN D'ACCUEIL */}
       <IntroOverlay
         isVisible={!isLocked && !selectedProject && !isMenuOpen && !hasMobilePermission}
@@ -141,12 +149,9 @@ const handleProjectSelect = (project) => {
       {/* 3. MENU LISTE DES PROJETS */}
       {isMenuOpen && (
         <ProjectListOverlay
-          projects={FIXED_DATA} // Utilise les données corrigées
+          projects={FIXED_DATA} 
           onClose={closeProjectMenu}
-          onSelect={(p) => {
-             setIsMenuOpen(false);
-             handleProjectSelect(p);
-          }}
+          onSelect={handleProjectSelectFromList}
         />
       )}
 
@@ -155,6 +160,7 @@ const handleProjectSelect = (project) => {
         <ProjectOverlay
           project={selectedProject}
           onClose={() => {
+            console.log("🔙 Fermeture du projet");
             setLastCloseTime(Date.now());
             setSelectedProject(null);
             if(!isMobile) setIsLocked(true); 
@@ -175,8 +181,7 @@ const handleProjectSelect = (project) => {
         />
       )}
 
-      {/* --- SCÈNE 3D --- */}
-      {/* FIX CRITIQUE IOS : On cache le conteneur du canvas quand l'overlay est ouvert */}
+      {/* 6. SCÈNE 3D */}
       <div style={{ 
         position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", zIndex: 1,
         visibility: selectedProject ? 'hidden' : 'visible' 
@@ -188,7 +193,6 @@ const handleProjectSelect = (project) => {
           camera={{ position: [0, 1.6, 4], fov: 75 }}
         >
           <RegardInitial />
-          
           <fog attach="fog" args={["black", 5, 24]} />
           <ambientLight intensity={0.8} />
           <spotLight
@@ -208,14 +212,9 @@ const handleProjectSelect = (project) => {
             
             <BoutonProjets
               position={[0, 1.6, 9.9]}
-              onActivate={() => {
-                document.exitPointerLock();
-                setIsMenuOpen(true);
-                setIsLocked(false);
-              }}
+              onActivate={openProjectMenu}
             />
 
-            {/* Utilise FIXED_DATA ici aussi pour les textures */}
             {FIXED_DATA.map((item) => (
               <Tableau
                 key={item.id}
@@ -226,6 +225,17 @@ const handleProjectSelect = (project) => {
           </Suspense>
         </Canvas>
       </div>
+
+      {/* 7. INTERFACE MOBILE */}
+      <MobileInterface
+        hasPermission={hasMobilePermission}
+        onPermissionGranted={() => {
+          setHasMobilePermission(true);
+          setIsLocked(true);
+        }}
+        onOpenMenu={openProjectMenu}
+      />
+
     </div>
   );
 }

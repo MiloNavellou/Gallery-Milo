@@ -8,7 +8,8 @@ export const mobileInputs = {
 
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-export default function MobileInterface({ onPermissionGranted, hasPermission }) {
+// NOTEZ BIEN : J'ai ajouté "onOpenMenu" dans les paramètres ici ↓
+export default function MobileInterface({ onPermissionGranted, hasPermission, onOpenMenu }) {
   if (!isMobile) return null;
 
   // 1. Écran de demande de permission
@@ -44,26 +45,64 @@ export default function MobileInterface({ onPermissionGranted, hasPermission }) 
     );
   }
 
-  // 2. Boutons de navigation
+  // 2. Interface de jeu
   return (
-    <div style={{
-      position: "fixed", bottom: "30px", left: 0, width: "100%",
-      display: "flex", justifyContent: "center", gap: "20px", zIndex: 9000,
-      userSelect: "none", touchAction: "none",
-      // FIX CRITIQUE : Le conteneur laisse passer les clics (pour pouvoir cliquer sur les tableaux)
-      pointerEvents: "none" 
-    }}>
+    <>
+      {/* BOUTON MENU "PROJETS" */}
       <button
-        onTouchStart={(e) => { e.preventDefault(); mobileInputs.backward = true; }}
-        onTouchEnd={(e) => { e.preventDefault(); mobileInputs.backward = false; }}
-        style={{ ...btnStyle, pointerEvents: "auto" }} // Le bouton capture le clic
-      >↓</button>
-      <button
-        onTouchStart={(e) => { e.preventDefault(); mobileInputs.forward = true; }}
-        onTouchEnd={(e) => { e.preventDefault(); mobileInputs.forward = false; }}
-        style={{ ...btnStyle, pointerEvents: "auto" }} // Le bouton capture le clic
-      >↑</button>
-    </div>
+          className="debug-red-active"
+          // UTILISATION DE POINTERDOWN (Réaction immédiate)
+          onPointerDown={(e) => {
+             e.preventDefault();
+             e.stopPropagation();
+             // Vérification de sécurité
+             if (onOpenMenu) {
+                 onOpenMenu();
+             } else {
+                 alert("ERREUR : onOpenMenu n'est pas connecté !");
+             }
+          }}
+          style={{
+              position: "fixed", 
+              top: "20px", 
+              right: "20px", 
+              zIndex: 999999, // Au-dessus de TOUT
+              background: "white", 
+              color: "black", 
+              border: "none", 
+              padding: "12px 24px", 
+              fontWeight: "900", 
+              textTransform: "uppercase",
+              borderRadius: "30px",
+              fontSize: "14px",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+              pointerEvents: "auto",
+              cursor: "pointer",
+              touchAction: "none" // Empêche le zoom/scroll navigateur
+          }}
+      >
+          Projets
+      </button>
+
+      {/* BOUTONS DE NAVIGATION */}
+      <div style={{
+        position: "fixed", bottom: "30px", left: 0, width: "100%",
+        display: "flex", justifyContent: "center", gap: "20px", zIndex: 9000,
+        userSelect: "none", touchAction: "none",
+        pointerEvents: "none" 
+      }}>
+        <button
+          onTouchStart={(e) => { e.preventDefault(); mobileInputs.backward = true; }}
+          onTouchEnd={(e) => { e.preventDefault(); mobileInputs.backward = false; }}
+          style={{ ...btnStyle, pointerEvents: "auto" }}
+        >↓</button>
+        <button
+          onTouchStart={(e) => { e.preventDefault(); mobileInputs.forward = true; }}
+          onTouchEnd={(e) => { e.preventDefault(); mobileInputs.forward = false; }}
+          style={{ ...btnStyle, pointerEvents: "auto" }}
+        >↑</button>
+      </div>
+    </>
   );
 }
 

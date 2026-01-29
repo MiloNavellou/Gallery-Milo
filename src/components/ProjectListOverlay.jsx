@@ -7,10 +7,12 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
 
   // --- ANIMATION D'ENTRÉE ---
   useEffect(() => {
-    requestAnimationFrame(() => setActive(true));
+    // Petit délai pour assurer la transition CSS
+    const timer = setTimeout(() => setActive(true), 50);
+    return () => clearTimeout(timer);
   }, []);
 
-  // --- GESTION SOURIS ---
+  // --- GESTION SOURIS (PC) ---
   const handleMouseMove = (e) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
@@ -34,19 +36,31 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
       onMouseMove={handleMouseMove}
       className="project-list-container"
       style={{
+        // FIX MOBILE : Positionnement explicite (plus robuste que inset: 0)
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        
         backgroundColor: "white",
         color: "black",
-        zIndex: 10000,
+        
+        // Z-INDEX SUPÉRIEUR : Doit être > 999 999 (bouton mobile)
+        zIndex: 2000000, 
+        
         cursor: "default",
+        
+        // FIX SCROLL MOBILE
         overflowY: "auto",
-        /* Animation du panneau */
-        transform: active ? "translateY(0)" : "translateY(100%)",
+        WebkitOverflowScrolling: "touch",
+        
+        /* Animation - Utilisation de translate3d pour forcer l'accélération GPU sur mobile */
+        transform: active ? "translate3d(0, 0, 0)" : "translate3d(0, 100%, 0)",
         transition: "transform 0.6s cubic-bezier(0.76, 0, 0.24, 1)",
       }}
     >
-      {/* BOUTON FERMER (Style global .close-btn défini dans App.css) */}
+      {/* BOUTON FERMER */}
       <button className="close-btn" onClick={handleClose}>
         Close
       </button>
@@ -64,11 +78,11 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
           <div
             key={item.id}
             className="project-row"
+            // Les événements souris pour le Desktop sont conservés
             onMouseEnter={() => setHoveredImg(item.url)}
             onMouseLeave={() => setHoveredImg(null)}
             onClick={() => handleProjectClick(item)}
             style={{
-              // La couleur dynamique reste inline car elle dépend du JS (state react)
               color: hoveredImg === item.url ? "#862222" : "black",
             }}
           >
@@ -87,12 +101,11 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
         ))}
       </div>
 
-      {/* IMAGE FLOTTANTE (PREVIEW) */}
+      {/* IMAGE FLOTTANTE (Desktop uniquement - géré via CSS media query) */}
       {hoveredImg && (
         <div
           className="floating-preview"
           style={{
-            // Position dynamique via JS, le reste est dans le CSS
             left: mousePos.x,
             top: mousePos.y,
           }}

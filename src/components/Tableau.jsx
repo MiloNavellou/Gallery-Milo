@@ -5,6 +5,9 @@ export default function Tableau({ item, onSelect }) {
   const texture = useTexture(item.url);
   const [hovered, setHover] = useState(false);
 
+  // Détection Mobile (pour adapter le clic)
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   // Optimisation dimensions
   const { width, height } = useMemo(() => {
     const h = 4;
@@ -20,6 +23,12 @@ export default function Tableau({ item, onSelect }) {
     else document.body.style.cursor = 'auto';
   }, [hovered]);
 
+  // --- LOGIQUE DE CLIC HYBRIDE ---
+  const handleInteraction = (e) => {
+    e.stopPropagation();
+    onSelect(item);
+  };
+
   return (
     <group position={item.position} rotation={item.rotation}>
       {/* ZONE CLIQUABLE */}
@@ -27,11 +36,16 @@ export default function Tableau({ item, onSelect }) {
         position={[0, 0, 0.1]}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
-        // FIX MOBILE : onPointerUp permet de valider le clic 
-        // même si le gyroscope a fait bouger la caméra de quelques pixels.
+        
+        // 1. DESKTOP : On utilise onClick (plus propre, évite les erreurs)
+        onClick={(e) => {
+            if (!isMobile) handleInteraction(e);
+        }}
+
+        // 2. MOBILE : On utilise onPointerUp 
+        // C'est le seul moyen fiable de valider un clic quand le gyroscope fait trembler la caméra
         onPointerUp={(e) => {
-          e.stopPropagation();
-          onSelect(item);
+            if (isMobile) handleInteraction(e);
         }}
       >
         <planeGeometry args={[width, height]} />
