@@ -607,7 +607,13 @@ html, body, #root, canvas {
   backface-visibility: hidden;
 }
 .image-col:hover .project-image-full { transform: scale(1.05); }
-.image-col { overflow: hidden; }
+/* CORRECTION SCROLL + ZOOM */
+.image-col {
+  /* On autorise le scroll vertical */
+  overflow-y: auto; 
+  /* On cache juste le dépassement horizontal (pour le zoom) */
+  overflow-x: hidden; 
+}
 
 /* --- LOADER ECRAN --- */
 .loader-container {
