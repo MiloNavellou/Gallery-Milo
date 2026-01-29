@@ -64,14 +64,19 @@ export default function App() {
     setTimeout(() => setIsLocked(true), 100);
   };
 
-  const handleProjectSelect = (project) => {
-    // MODIFICATION ICI : On passe de 500 à 2000 (2 secondes)
-    // Cela empêche de rouvrir un projet immédiatement après en avoir fermé un
+const handleProjectSelect = (project) => {
+    // 1. Délai de sécurité (2 secondes comme demandé précédemment)
     if (Date.now() - lastCloseTime < 2000) return;
     
-    setSelectedProject(project);
+    // 2. ORDRE CRUCIAL :
+    // A. On force le navigateur à lâcher la souris TOUT DE SUITE
     document.exitPointerLock();
+    
+    // B. On dit à React : "Arrête d'afficher les contrôles 3D (PointerLockControls)"
     setIsLocked(false);
+    
+    // C. On affiche l'overlay du projet
+    setSelectedProject(project);
   };
 
   // --- EFFECTS (Pointer Lock) ---
@@ -91,6 +96,28 @@ export default function App() {
     document.addEventListener("pointerlockchange", handleLockChange);
     return () => document.removeEventListener("pointerlockchange", handleLockChange);
   }, [isMobile]);
+  // ... (vos autres useEffects)
+
+  // GARDIEN DU CURSEUR
+  // Si un projet est ouvert OU le menu est ouvert -> on force le curseur et le déverrouillage
+  useEffect(() => {
+    if (selectedProject || isMenuOpen) {
+      const unlock = () => {
+        if (document.pointerLockElement) {
+          document.exitPointerLock();
+        }
+        document.body.style.cursor = "auto";
+      };
+      
+      // On l'exécute immédiatement
+      unlock();
+      
+      // ET on insiste 100ms après (pour contrer le navigateur qui serait lent)
+      const timer = setTimeout(unlock, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedProject, isMenuOpen]);
+
 
   return (
     <div style={{ width: "100%", height: "100%", background: "black", position: 'relative' }}>

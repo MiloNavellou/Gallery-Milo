@@ -4,8 +4,19 @@ export default function ProjectOverlay({ project, onClose }) {
   const [active, setActive] = useState(false);
 
   // Animation d'entrée
-  useEffect(() => {
+ useEffect(() => {
+    // 1. Force immédiate du curseur système
+    document.body.style.cursor = "auto";
+    
+    // 2. Sécurité : Si le verrou est encore actif, on le fait sauter
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+
     requestAnimationFrame(() => setActive(true));
+    
+    // Cleanup : on remet le curseur auto en partant au cas où
+    return () => { document.body.style.cursor = "auto"; };
   }, []);
 
   // Animation de sortie
