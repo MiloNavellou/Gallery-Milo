@@ -65,7 +65,9 @@ export default function App() {
   };
 
   const handleProjectSelect = (project) => {
-    if (Date.now() - lastCloseTime < 500) return;
+    // MODIFICATION ICI : On passe de 500 à 2000 (2 secondes)
+    // Cela empêche de rouvrir un projet immédiatement après en avoir fermé un
+    if (Date.now() - lastCloseTime < 2000) return;
     
     setSelectedProject(project);
     document.exitPointerLock();
