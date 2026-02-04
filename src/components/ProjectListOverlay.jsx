@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-// --- SOUS-COMPOSANT : WaveText (identique) ---
+// --- SOUS-COMPOSANT : WaveText (Gardé pour la liste des projets) ---
 const WaveText = ({ text, isHovered, className, style }) => {
   const chars = text.split("");
   return (
@@ -25,6 +25,8 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
   const [hoveredImg, setHoveredImg] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [active, setActive] = useState(false);
+  
+  // État pour le survol du TITRE PRINCIPAL
   const [isTitleHovered, setIsTitleHovered] = useState(false);
 
   useEffect(() => {
@@ -50,10 +52,12 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
 
   // --- CONFIGURATION ---
   const HEADER_HEIGHT = "220px"; 
+  const titleText = "My Projects".split(""); // On prépare le tableau pour le titre
 
   return (
     <>
       <style>{`
+        /* --- ANIMATION WAVE (POUR LA LISTE) --- */
         @keyframes wave-anim-list {
           0% { transform: translateY(0); }
           30% { transform: translateY(-10px) rotate(2deg); }
@@ -69,118 +73,122 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
           animation: wave-anim-list 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
         }
 
-        /* SCROLLBAR PERSONALISÉE (OPTIONNEL POUR LE STYLE) */
-        .custom-scroll::-webkit-scrollbar {
-          width: 6px;
+        /* --- ANIMATION ROLLING (POUR LE TITRE "MY PROJECTS") --- */
+        .project-title-wrapper {
+            display: inline-block;
+            overflow: hidden;
+            position: relative;
+            vertical-align: bottom;
+            
+            /* Gestion des jambages (j, y, p, q) */
+            line-height: 1.2em; 
+            height: 1.2em;
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-          background-color: rgba(0,0,0,0.2);
-          border-radius: 3px;
+        
+        .project-roll-char {
+            display: inline-block;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+            color: white;
+            line-height: 1.2em;
         }
+
+        .project-roll-char::after {
+            content: attr(data-char);
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            color: white;
+            line-height: 1.2em;
+        }
+
+        /* Déclencheur au survol du H1 */
+        .title-hover-active .project-roll-char {
+            transform: translateY(-100%);
+        }
+
+
+        /* SCROLLBAR PERSONALISÉE */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 3px; }
 
         /* BOUTON INDÉPENDANT */
         .custom-close-btn {
-            position: absolute; /* Absolute par rapport au conteneur principal */
-            top: 0;
-            right: 0;
-            z-index: 2000010; /* Au-dessus de tout */
-            
-            background: black;
-            color: white;
-            border: none;
-            width: 100px; 
-            height: 100px; 
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-            font-size: 16px; 
-            text-transform: uppercase;
+            position: absolute; top: 0; right: 0; z-index: 2000010;
+            background: black; color: white; border: none;
+            width: 100px; height: 100px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; justify-content: center;
+            transition: background 0.3s; font-size: 16px; text-transform: uppercase;
         }
-        .custom-close-btn:hover {
-            background: #333;
-        }
+        .custom-close-btn:hover { background: #333; }
 
         body { margin: 0; padding: 0; }
       `}</style>
 
-      {/* 1. CONTENEUR PRINCIPAL (Fixe, ne scrolle pas, contient l'anim d'entrée) */}
+      {/* 1. CONTENEUR PRINCIPAL */}
       <div
         onMouseMove={handleMouseMove}
         className="project-list-container"
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          backgroundColor: "white",
-          color: "black",
-          zIndex: 2000000,
-          cursor: "default",
-          
-          /* IMPORTANT : On désactive le scroll ici pour que le bouton reste fixe */
+          position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+          backgroundColor: "white", color: "black", zIndex: 2000000, cursor: "default",
           overflow: "hidden", 
-          
           transform: active ? "translate3d(0, 0, 0)" : "translate3d(0, 100%, 0)",
           transition: "transform 0.6s cubic-bezier(0.76, 0, 0.24, 1)",
-          margin: 0,
-          padding: 0,
-          boxSizing: "border-box"
+          margin: 0, padding: 0, boxSizing: "border-box"
         }}
       >
-        {/* 2. LE BOUTON (Sorti du flux de défilement) */}
+        {/* 2. LE BOUTON */}
         <button className="custom-close-btn" onClick={handleCloseButton}>
             Close
         </button>
 
-        {/* 3. ZONE DE DÉFILEMENT (C'est ici que le contenu bouge) */}
+        {/* 3. ZONE DE DÉFILEMENT */}
         <div 
             className="custom-scroll"
             style={{
-                width: "100%",
-                height: "100%",
-                overflowY: "auto", // Le scroll se fait UNIQUEMENT ici
-                WebkitOverflowScrolling: "touch",
-                position: "relative"
+                width: "100%", height: "100%", overflowY: "auto",
+                WebkitOverflowScrolling: "touch", position: "relative"
             }}
         >
             {/* HEADER ROUGE */}
             <header
               style={{
-                width: "100%",
-                height: HEADER_HEIGHT,
-                backgroundColor: "#7A2626",
-                display: "flex",
-                alignItems: "center",
-                padding: 0,
-                margin: 0,
-                boxSizing: "border-box",
-                position: "relative"
+                width: "100%", height: HEADER_HEIGHT, backgroundColor: "#7A2626",
+                display: "flex", alignItems: "center", padding: 0, margin: 0,
+                boxSizing: "border-box", position: "relative"
               }}
             >
               <h1
+                className={isTitleHovered ? "title-hover-active" : ""}
                 style={{ 
-                  fontFamily: "'Aileron', sans-serif",
-                  fontWeight: 900,
-                  fontSize: "clamp(3rem, 5vw, 6rem)",
-                  lineHeight: 0.9,
-                  letterSpacing: "-2px",
-                  margin: 0,
-                  color: "white", 
-                  paddingLeft: "40px",
-                  cursor: "default",
-                  width: "100%" 
+                  fontFamily: "'Aileron', sans-serif", fontWeight: 900,
+                  fontSize: "clamp(3rem, 5vw, 6rem)", lineHeight: 0.9, letterSpacing: "-2px",
+                  margin: 0, color: "white", paddingLeft: "40px", cursor: "default", width: "100%" 
                 }}
                 onMouseEnter={() => setIsTitleHovered(true)}
                 onMouseLeave={() => setIsTitleHovered(false)}
               >
-                 <WaveText 
-                    text="My Projects" 
-                    isHovered={isTitleHovered} 
-                  />
+                 {/* === EFFET ROLLING SUR MY PROJECTS === */}
+                 {titleText.map((char, index) => (
+                    <span 
+                        key={index} 
+                        className="project-title-wrapper"
+                    >
+                        <span 
+                            className="project-roll-char"
+                            data-char={char}
+                            style={{ 
+                                transitionDelay: `${index * 0.04}s`, // Délai séquentiel
+                                minWidth: char === " " ? "0.3em" : "auto"
+                            }}
+                        >
+                            {char === " " ? "\u00A0" : char}
+                        </span>
+                    </span>
+                 ))}
+                 {/* ===================================== */}
               </h1>
             </header>
 
@@ -203,6 +211,7 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
                   >
                     <span className="col-year">{item.year || "2025"}</span>
                     <span className="col-title">
+                      {/* On garde WaveText pour les éléments de la liste */}
                       <WaveText 
                         text={item.title} 
                         isHovered={hoveredImg === item.url} 
@@ -220,15 +229,10 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
           <div
             className="floating-preview"
             style={{
-              left: mousePos.x,
-              top: mousePos.y,
+              left: mousePos.x, top: mousePos.y,
             }}
           >
-            <img
-              src={hoveredImg}
-              alt="preview"
-              className="floating-img"
-            />
+            <img src={hoveredImg} alt="preview" className="floating-img" />
           </div>
         )}
       </div>

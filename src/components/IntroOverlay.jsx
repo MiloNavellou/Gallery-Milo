@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 export default function IntroOverlay({ isVisible, onEnter }) {
   const [startAnim, setStartAnim] = useState(false);
   
-  // États pour le survol (Wave Effect)
+  // États pour le survol
   const [isTitleHovered, setIsTitleHovered] = useState(false);
   const [isPortfolioHovered, setIsPortfolioHovered] = useState(false);
+  const [isMiloHovered, setIsMiloHovered] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -16,6 +17,7 @@ export default function IntroOverlay({ isVisible, onEnter }) {
 
   const galleryText = "My Gallery".split("");
   const portfolioText = "Portfolio.".split("");
+  const miloText = "Milo".split(""); 
 
   return (
     <>
@@ -85,65 +87,70 @@ export default function IntroOverlay({ isVisible, onEnter }) {
         }
         .start-anim .instructions-text { opacity: 0.9; transform: translateY(0); }
 
-        /* === EFFET LOUPE SUR LES MOTS === */
-        .word-magnify {
+        /* === EFFET ROLLING SUR MILO (Blanc) === */
+        .milo-wrapper-hover { display: inline-flex; overflow: hidden; cursor: pointer; line-height: 0.8; vertical-align: bottom; }
+        .roll-char { display: inline-block; position: relative; transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1); color: white; }
+        .roll-char::after { content: attr(data-char); position: absolute; top: 100%; left: 0; width: 100%; color: white; }
+        .hover-active .roll-char { transform: translateY(-100%); }
+
+        /* === EFFET ROLLING SUR MY GALLERY (Noir, corrigé pour jambages) === */
+        .gallery-wrapper-char {
             display: inline-block;
-            font-weight: 600;
-            cursor: none;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
+            overflow: hidden;
             position: relative;
-            z-index: 10;
+            vertical-align: bottom;
+            line-height: 1.15em; /* Hauteur augmentée pour inclure la queue du 'y' */
+            height: 1.15em;      /* Force le masque à cette hauteur */
         }
-        .word-magnify:hover {
-            transform: scale(2);
-            color: #fff;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        
+        .gallery-roll-char {
+            display: inline-block;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+            color: black;
+            line-height: 1.15em; 
         }
 
-        .backwards {
-            display: inline-block;
-            font-weight: 600;
-            cursor: none;
+        .gallery-roll-char::after {
+            content: attr(data-char);
+            position: absolute;
+            top: 100%; 
+            left: 0;
+            width: 100%;
+            color: black;
+            line-height: 1.15em;
+        }
+
+        .gallery-hover-active .gallery-roll-char {
+            transform: translateY(-100%);
+        }
+
+        /* === AUTRES EFFETS TEXTE === */
+        .word-magnify {
+            display: inline-block; font-weight: 600; cursor: none;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
-            position: relative;
-            z-index: 10;
-               transform : 1s;
+            position: relative; z-index: 10;
         }
-        .backwards:hover {
-            transform: translateY(50px) scale(1.5);
-            transform : 1s;
-            color: #fff;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .forwards {
-            display: inline-block;
-            font-weight: 600;
-            cursor: none;
+        .word-magnify:hover { transform: scale(2); color: #fff; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .backwards, .forwards {
+            display: inline-block; font-weight: 600; cursor: none;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
-            position: relative;
-            z-index: 10;
-               transform : 1s;
+            position: relative; z-index: 10;
         }
-        .forwards:hover {
-            transform: translateY(-50px) scale(1.5);
-            transform : 1s;
-            color: #fff;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+        .backwards:hover { transform: translateY(50px) scale(1.5); color: #fff; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .forwards:hover { transform: translateY(-50px) scale(1.5); color: #fff; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         .name-wrapper-centered { position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%) rotate(-90deg); display: flex; flex-direction: column; align-items: flex-start; gap: 0px; width: fit-content; height: fit-content; }
         .intro-greeting-sub { font-size: 1.8rem; font-weight: 300; opacity: 0.9; margin: 0; white-space: nowrap; margin-left: 20px; }
+        
         .intro-milo-huge { font-size: 14rem; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -5px; white-space: nowrap; }
 
         .header-row { display: flex; height: 35%; align-items: stretch; position: relative; }
         .title-container { flex: 1; display: flex; align-items: center; padding-left: 60px; cursor: pointer; }
         .gallery-title { font-size: clamp(4rem, 10vw, 11rem); font-weight: 400; color: black; margin: 0; letter-spacing: -3px; line-height: 1; display: flex; }
 
-        /* WAVE EFFECTS */
-        .char-title { display: inline-block; transform-origin: bottom center; }
-        .animate-wave-h { animation: wave-anim-h 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
-        @keyframes wave-anim-h { 0% { transform: translateY(0); } 30% { transform: translateY(-15px) rotate(2deg); } 60% { transform: translateY(3px); } 100% { transform: translateY(0); } }
-
+        /* WAVE EFFECTS (Pour Portfolio seulement) */
         .char-portfolio { display: inline-block; transform-origin: center center; }
         .animate-wave-v { animation: wave-anim-v 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
         @keyframes wave-anim-v { 0% { transform: translateX(0); } 30% { transform: translateX(-10px) rotate(2deg); } 60% { transform: translateX(3px); } 100% { transform: translateX(0); } }
@@ -155,18 +162,13 @@ export default function IntroOverlay({ isVisible, onEnter }) {
         .content-row { flex: 1; display: flex; align-items: flex-end; justify-content: space-between; padding-left: 60px; position: relative; }
         .description-block { max-width: 480px; padding-bottom: 60px; color: black; font-size: 1.25rem; line-height: 1.4; font-weight: 400; }
 
-     
         .cta-box { width: 320px; height: 320px; background-color: #7A2626; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transform: scaleY(0); transform-origin: bottom; transition: transform 1s var(--ease-out-expo), background-color 0.1s; transition-delay: 0.8s; }
         .start-anim .cta-box { transform: scaleY(1); }
         .cta-box:hover { background-color: #5c1c1c; }
 
         .arrow-wrapper { position: relative; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
-        .cta-arrow { width: 180px; height: 180px; fill: none; stroke: white; stroke-width: 8; stroke-linecap: square; stroke-linejoin: miter; position: absolute; top: 0; left: 0; }
+        .cta-arrow { width: 180px; height: 180px; fill: none; stroke: white; stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; position: absolute; top: 0; left: 0; }
         
-        /* CORRECTION : On sépare les transitions.
-           stroke-dashoffset : pour le dessin initial (avec délai 1.1s)
-           transform : pour le mouvement au survol (sans délai 0s)
-        */
         .arrow-main { 
             transform: translate(0, 0); 
             stroke-dasharray: 450; stroke-dashoffset: 450; 
@@ -180,7 +182,6 @@ export default function IntroOverlay({ isVisible, onEnter }) {
             transition: transform 0.6s var(--ease-in-out-quart) 0s; 
         }
         
-        /* Au hover, on bouge instantanément */
         .cta-box:hover .arrow-main { transform: translate(150%, 150%); }
         .cta-box:hover .arrow-clone { transform: translate(0, 0); }
 
@@ -224,8 +225,26 @@ export default function IntroOverlay({ isVisible, onEnter }) {
             <div className="reveal-mask">
               <span className="intro-greeting-sub reveal-inner d-2">Hello everyone, I'm</span>
             </div>
+            
             <div className="reveal-mask">
-              <h1 className="intro-milo-huge reveal-inner d-2">Milo</h1>
+              <h1 
+                className="intro-milo-huge reveal-inner d-2"
+                onMouseEnter={() => setIsMiloHovered(true)}
+                onMouseLeave={() => setIsMiloHovered(false)}
+              >
+                <span className={`milo-wrapper-hover ${isMiloHovered ? 'hover-active' : ''}`}>
+                    {miloText.map((char, index) => (
+                        <span 
+                            key={index} 
+                            className="roll-char" 
+                            data-char={char}
+                            style={{ transitionDelay: `${index * 0.05}s` }}
+                        >
+                            {char}
+                        </span>
+                    ))}
+                </span>
+              </h1>
             </div>
           </div>
         </div>
@@ -241,17 +260,24 @@ export default function IntroOverlay({ isVisible, onEnter }) {
               onMouseLeave={() => setIsTitleHovered(false)}
             >
               <div className="reveal-mask">
-                <h2 className="gallery-title reveal-inner d-1" key={isTitleHovered ? "hover" : "idle"}>
+                <h2 
+                    className={`gallery-title reveal-inner d-1 ${isTitleHovered ? 'gallery-hover-active' : ''}`}
+                >
                   {galleryText.map((char, index) => (
                     <span 
                       key={index} 
-                      className={`char-title ${isTitleHovered ? 'animate-wave-h' : ''}`}
-                      style={{ 
-                        animationDelay: `${index * 0.04}s`,
-                        minWidth: char === " " ? "0.1em" : "auto" 
-                      }}
+                      className="gallery-wrapper-char"
                     >
-                      {char === " " ? "\u00A0" : char}
+                        <span 
+                            className="gallery-roll-char"
+                            data-char={char}
+                            style={{ 
+                                transitionDelay: `${index * 0.03}s`,
+                                minWidth: char === " " ? "0.2em" : "auto"
+                            }}
+                        >
+                            {char === " " ? "\u00A0" : char}
+                        </span>
                     </span>
                   ))}
                 </h2>
@@ -293,16 +319,20 @@ export default function IntroOverlay({ isVisible, onEnter }) {
               </div>
             </div>
 
+            {/* === MISE A JOUR DES SVG ICI === */}
             <div className="cta-box" onClick={onEnter}>
               <div className="arrow-wrapper">
                 <svg className="cta-arrow arrow-main" viewBox="0 0 100 100">
-                  <path d="M 10 10 L 90 90 M 90 90 L 90 10 M 90 90 L 10 90" />
+                 
+                  <path d="M 90 10 L 90 90 L 10 90 M 10 10 L 90 90" />
                 </svg>
                 <svg className="cta-arrow arrow-clone" viewBox="0 0 100 100">
-                  <path d="M 10 10 L 90 90 M 90 90 L 90 10 M 90 90 L 10 90" />
+                  {/* Nouveau tracé propre */}
+                  <path d="M 90 10 L 90 90 L 10 90 M 10 10 L 90 90" />
                 </svg>
               </div>
             </div>
+            {/* ============================= */}
           </div>
         </div>
       </div>
