@@ -41,6 +41,7 @@ const TEXTURE_URLS = FIXED_DATA.map(d => d.url);
 useTexture.preload(TEXTURE_URLS);
 
 export default function App() {
+  const [isLoaded, setIsLoaded] = useState(false); // Nouvel état
   const [isLocked, setIsLocked] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [lastCloseTime, setLastCloseTime] = useState(0);
@@ -61,11 +62,11 @@ export default function App() {
     setIsLocked(false);
     setIsMenuOpen(true);
     
-    console.log("✅ Menu ouvert");
+    console.log("Menu ouvert");
   };
 
   const closeProjectMenu = () => {
-    console.log("❌ Fermeture du menu");
+    console.log("Fermeture du menu");
     setLastCloseTime(Date.now());
     setIsMenuOpen(false);
     setTimeout(() => setIsLocked(true), 100);
@@ -91,7 +92,7 @@ export default function App() {
     
     // Puis ouvrir le projet avec un petit délai pour que React ait le temps de mettre à jour
     setTimeout(() => {
-      console.log("🚀 Ouverture du projet:", project.title);
+      console.log("Ouverture du projet:", project.title);
       setSelectedProject(project);
     }, 100);
   };
@@ -127,7 +128,7 @@ export default function App() {
 
   // DEBUG : Logger les changements d'état
   useEffect(() => {
-    console.log("📌 État actuel:", {
+    console.log("État actuel:", {
       isMenuOpen,
       selectedProject: selectedProject?.title || null,
       isLocked
@@ -137,14 +138,14 @@ export default function App() {
   return (
     <div style={{ width: "100%", height: "100%", background: "black", position: 'relative' }}>
       
-      {/* 1. Loader (Au fond) */}
-      <LoaderScreen />
+      <LoaderScreen onFinished={() => setIsLoaded(true)} />
       
-      {/* 2. ÉCRAN D'ACCUEIL */}
-      <IntroOverlay
-        isVisible={!isLocked && !selectedProject && !isMenuOpen && !hasMobilePermission}
-        onEnter={() => setIsLocked(true)}
-      />
+     {isLoaded && (
+        <IntroOverlay
+          isVisible={!isLocked && !selectedProject && !isMenuOpen && !hasMobilePermission}
+          onEnter={() => setIsLocked(true)}
+        />
+      )}
 
       {/* 3. MENU LISTE DES PROJETS */}
       {isMenuOpen && (
@@ -160,7 +161,7 @@ export default function App() {
         <ProjectOverlay
           project={selectedProject}
           onClose={() => {
-            console.log("🔙 Fermeture du projet");
+            console.log("Fermeture du projet");
             setLastCloseTime(Date.now());
             setSelectedProject(null);
             if(!isMobile) setIsLocked(true); 
@@ -183,7 +184,9 @@ export default function App() {
 
       {/* 6. SCÈNE 3D */}
       <div style={{ 
-        position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", zIndex: 1,
+        position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", zIndex: 1, // CONDITION CRUCIALE : opacity 0 tant que ce n'est pas chargé
+        opacity: isLoaded ? 1 : 0,
+        transition: 'opacity 0.5s ease-in-out', // Optionnel : apparition fluide de la scène
         visibility: selectedProject ? 'hidden' : 'visible' 
       }}>
         <Canvas
@@ -213,6 +216,7 @@ export default function App() {
             <BoutonProjets
               position={[0, 1.6, 9.9]}
               onActivate={openProjectMenu}
+             
             />
 
             {FIXED_DATA.map((item) => (

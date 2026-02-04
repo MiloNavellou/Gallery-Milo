@@ -1,16 +1,6 @@
-# React + Vite
+# Bienvenue dans ma galerie de projets immersifs ! 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Un de mes projets dont je suis le plus fier car je l’ai entièrement conçu from scratch. Ce projet m’a pris 1 mois à développer de l’étape de maquettage en passant par la direction artistique puis la conception du code.
+Bien sur à ne surtout pas laisser de côté, l’étape de test et d’adaptabilité. 
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+L’idée est simple, vous êtes un visiteurs et vous venez découvrir mes projets réalisés lors de ma formation en cliquant sur les tableaux ! Il est adapté au format mobile, sans doute le plus important aujourd’hui. C’est là que l’immersion s’intensifie mais je ne vous en dévoile pas plus à vous de découvrir…

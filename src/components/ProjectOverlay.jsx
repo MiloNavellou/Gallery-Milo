@@ -4,19 +4,21 @@ export default function ProjectOverlay({ project, onClose }) {
   const [active, setActive] = useState(false);
 
   // Animation d'entrée
- useEffect(() => {
+  useEffect(() => {
     // 1. Force immédiate du curseur système
     document.body.style.cursor = "auto";
-    
+
     // 2. Sécurité : Si le verrou est encore actif, on le fait sauter
     if (document.pointerLockElement) {
       document.exitPointerLock();
     }
 
     requestAnimationFrame(() => setActive(true));
-    
+
     // Cleanup : on remet le curseur auto en partant au cas où
-    return () => { document.body.style.cursor = "auto"; };
+    return () => {
+      document.body.style.cursor = "auto";
+    };
   }, []);
 
   // Animation de sortie
@@ -28,7 +30,12 @@ export default function ProjectOverlay({ project, onClose }) {
   if (!project) return null;
 
   return (
-    <div className={`fullscreen-overlay ${active ? "active" : ""}`}>
+    <div
+      className={`fullscreen-overlay ${active ? "active" : ""}`}
+      style={{
+        zIndex: 3000000,
+      }}
+    >
       <button className="close-btn" onClick={handleClose}>
         Close
       </button>
@@ -71,11 +78,27 @@ export default function ProjectOverlay({ project, onClose }) {
               className="figma-btn"
             >
               <span>View Project</span>
-              <span className="arrow-icon">→</span>
+
+              {/* Remplacement du span par le SVG */}
+              <svg
+                className="arrow-icon-svg"
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M 10 10 L 90 90 M 90 90 L 90 10 M 90 90 L 10 90"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="10" /* Légèrement plus gras pour être lisible en petit */
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
+                />
+              </svg>
             </a>
           </div>
         )}
       </div>
+
 
       {/* Colonne Image (Droite) */}
       <div className="image-col">
