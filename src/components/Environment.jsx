@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import { MeshReflectorMaterial, Text } from "@react-three/drei";
 
-// URL de la police Inter (version normale)
-// Note: Le fontWeight dans Text gère le gras si la police le supporte, 
-// sinon on pointe vers une URL spécifique. Ici le lien gère plusieurs graisses.
-const FONT_URL = "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff";
+// --- CONFIGURATION DE LA POLICE ---
+// Aileron n'est pas sur Google Fonts. Vous devez mettre le fichier dans votre dossier public.
+// Exemple : dossier_projet/public/fonts/Aileron-Regular.otf
+const FONT_URL = "/fonts/Aileron-Regular.otf"; 
+
+// Si vous avez aussi la version Bold pour les titres, vous pouvez créer une constante :
+// const FONT_URL_BOLD = "/fonts/Aileron-Bold.otf";
 
 export function Couloir() {
   return (
@@ -35,7 +38,7 @@ export function Couloir() {
         <planeGeometry args={[20, 30]} />
         <MeshReflectorMaterial
           blur={[300, 100]}
-          resolution={1024} // Optimisé pour la perf (vs 2048)
+          resolution={1024}
           mixBlur={1}
           mixStrength={50}
           roughness={1}
@@ -70,7 +73,8 @@ export function MurPresentation() {
         anchorX="center"
         anchorY="middle"
         letterSpacing={-0.05}
-        fontWeight={700} // Force le gras
+        // Note : Avec un fichier .otf unique, fontWeight pourrait ne pas simuler le gras correctement.
+        // Idéalement, pointez vers Aileron-Bold.otf pour les titres.
       >
         Welcome everyone
       </Text>
@@ -155,7 +159,6 @@ export function MurPresentationGauche() {
         anchorX="center"
         anchorY="middle"
         letterSpacing={-0.05}
-        fontWeight={700}
       >
         My favourite projects
       </Text>
@@ -194,7 +197,7 @@ export function BoutonProjets({ position, onActivate }) {
         color="white"
         font={FONT_URL}
         letterSpacing={0.2}
-        fontWeight={900}
+        // fontWeight={900} // Retiré car cela nécessite le fichier Aileron-Black/Bold
       >
         MES PROJETS
       </Text>

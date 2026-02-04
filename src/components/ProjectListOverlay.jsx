@@ -52,7 +52,7 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
 
   // --- CONFIGURATION ---
   const HEADER_HEIGHT = "220px"; 
-  const titleText = "My Projects".split(""); // On prépare le tableau pour le titre
+  const titleText = "My Projects".split(""); 
 
   return (
     <>
@@ -79,8 +79,6 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
             overflow: hidden;
             position: relative;
             vertical-align: bottom;
-            
-            /* Gestion des jambages (j, y, p, q) */
             line-height: 1.2em; 
             height: 1.2em;
         }
@@ -103,11 +101,23 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
             line-height: 1.2em;
         }
 
-        /* Déclencheur au survol du H1 */
         .title-hover-active .project-roll-char {
             transform: translateY(-100%);
         }
 
+        /* --- STYLE DE LA FLECHE SVG (MODIFIÉ) --- */
+        .arrow-icon {
+            width: 0.7em; /* Plus petit (était 0.9em) */
+            height: 0.7em; /* Plus petit (était 0.9em) */
+            margin-left: 12px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 8;
+            stroke-linecap: square;
+            stroke-linejoin: miter;
+            display: block;
+            transform: rotate(0deg); /* Tourné de 45 degrés */
+        }
 
         /* SCROLLBAR PERSONALISÉE */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
@@ -180,7 +190,7 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
                             className="project-roll-char"
                             data-char={char}
                             style={{ 
-                                transitionDelay: `${index * 0.04}s`, // Délai séquentiel
+                                transitionDelay: `${index * 0.04}s`,
                                 minWidth: char === " " ? "0.3em" : "auto"
                             }}
                         >
@@ -188,7 +198,6 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
                         </span>
                     </span>
                  ))}
-                 {/* ===================================== */}
               </h1>
             </header>
 
@@ -211,14 +220,20 @@ export default function ProjectListOverlay({ projects, onClose, onSelect }) {
                   >
                     <span className="col-year">{item.year || "2025"}</span>
                     <span className="col-title">
-                      {/* On garde WaveText pour les éléments de la liste */}
                       <WaveText 
                         text={item.title} 
                         isHovered={hoveredImg === item.url} 
                       />
                     </span>
                     <span className="col-client">{item.client || "IUT Lannion"}</span>
-                    <span className="col-link">Discover project ↗</span>
+                    
+                    <span className="col-link" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        Discover project
+                        <svg className="arrow-icon" viewBox="0 0 100 100">
+                             <path d="M 90 10 L 90 90 L 10 90 M 10 10 L 90 90" />
+                        </svg>
+                    </span>
+                    
                   </div>
                 ))}
               </div>

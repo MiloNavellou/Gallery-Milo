@@ -122,7 +122,7 @@ export default function IntroOverlay({ isVisible, onEnter }) {
         }
 
         .gallery-hover-active .gallery-roll-char {
-            transform: translateY(-100%);
+            transform: translateY(-110%);
         }
 
         /* === AUTRES EFFETS TEXTE === */
