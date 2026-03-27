@@ -5,9 +5,11 @@ export const DATA = [
     position: [-9.9, 0, -7],
     rotation: [0, Math.PI / 2, 0],
     title: "La Roche Jagu",
-    description: "This project, carried out in partnership with the Domaine Départemental de la Roche Jagu, aimed to completely rethink the park visitor experience...",
+    description:
+      "A phygital experience at La Roche Jagu blending Corten steel signage with digital immersion. This accessible path features connected binoculars to explore the landscape across the seasons.",
     tools: "Made with Illustrator, Affinity & Figma",
-    credits: "Milo Navellou, Annaëlle Le Guénic, Nuno Enes, Karina Kervadec, Antonin Thomas",
+    credits:
+      "Milo Navellou, Annaëlle Le Guénic, Nuno Enes, Karina Kervadec, Antonin Thomas",
     year: "2025",
     client: "Domaine de la Roche Jagu",
     link: "https://milonavellou.framer.website/work/roche-jagu",
@@ -18,7 +20,8 @@ export const DATA = [
     position: [-9.9, 0, 2],
     rotation: [0, Math.PI / 2, 0],
     title: "Musée Aman in Morocco",
-    description: "Under the direction of Mr. El Mandour, I had the opportunity to oversee the entire creation of the website...",
+    description:
+      "I spearheaded the complete development of the AMAN Museum website, blending water heritage with digital modernity. From UI/UX design to WordPress development, I built a institutional platform. This project, created in close collaboration with management, provides an immersive and interactive showcase for Morocco’s water civilization while adhering to ministerial standards.",
     tools: "Made with Figma & Wordpress",
     credits: "Milo Navellou",
     year: "2025",
@@ -32,7 +35,8 @@ export const DATA = [
     position: [-9.9, 0, 11],
     rotation: [0, Math.PI / 2, 0],
     title: "Celtic'GO",
-    description: "The aim of this project was to address a local issue: the fragmentation of cultural offerings...",
+    description:
+      "The aim of this project was to address a local issue: the fragmentation of cultural offerings...",
     tools: "Made with Figma & Photoshop",
     credits: "Milo Navellou & Elijah Guillou",
     year: "2025",
@@ -45,7 +49,8 @@ export const DATA = [
     position: [9.9, 0, 2],
     rotation: [0, -Math.PI / 2, 0],
     title: "Mascherata",
-    description: "Inspired by Venetian craftsmanship, the Mascherata project involves designing a complete e-commerce ecosystem for a luxury costume brand...",
+    description:
+      "Mascherata blends Venetian heritage with luxury e-commerce through a comprehensive digital ecosystem. From brand strategy (storytelling, iconic ambassadors) to refined UX/UI design on Figma, I managed the entire customer journey. Despite technical constraints with PrestaShop, this project showcases strong expertise in art direction and high-end brand management.",
     tools: "Made with Figma & Prestashop",
     credits: "Milo Navellou & Annaëlle Le Guénic",
     year: "2026",
@@ -59,9 +64,11 @@ export const DATA = [
     position: [9.9, 0, -7],
     rotation: [0, -Math.PI / 2, 0],
     title: "Spider Man Calendar",
-    description: "This project offers an ethical advent calendar (“Bright Patterns”) inspired by Spider-Man...",
+    description:
+      "This project offers an ethical advent calendar (“Bright Patterns”) inspired by Spider-Man...",
     tools: "Made with Figma, React & Fl Studio",
-    credits: "Milo Navellou, Nathan Perissat, Elijah Guillou, Noémie Bouvier, Diane Le Garrec, Harena Ramasindraïbe & Thibault Sardou",
+    credits:
+      "Milo Navellou, Nathan Perissat, Elijah Guillou, Noémie Bouvier, Diane Le Garrec, Harena Ramasindraïbe & Thibault Sardou",
     year: "2025",
     client: "Camille Boulestin & Thomas Bouchez",
     link: "https://www.figma.com/proto/mKFQLTRfjHHJLWvgcpTLsZ/Workshop-Spider-verse?node-id=0-1&t=3ob7DtqfItZN6YBh-1",
